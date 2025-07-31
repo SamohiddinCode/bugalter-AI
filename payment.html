@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Оплата - Bugalter AI</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/payment.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="landing-page.html" class="logo">
+                    <img src="img/logo.png" alt="Bugalter AI" class="logo-img">
+                </a>
+            </div>
+            <div class="nav-actions">
+                <a href="auth-system.html" class="btn btn-outline">Войти</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Payment Container -->
+    <div class="payment-container">
+        <div class="container">
+            <div class="payment-content">
+                <!-- Order Summary -->
+                <div class="order-summary">
+                    <div class="summary-header">
+                        <h2>Сводка заказа</h2>
+                        <a href="pricing-page.html" class="change-plan">
+                            <i class="fas fa-edit"></i>
+                            Изменить план
+                        </a>
+                    </div>
+                    
+                    <div class="plan-details">
+                        <div class="plan-info">
+                            <h3 id="selected-plan">Plus</h3>
+                            <p id="plan-description">Для активных пользователей и малого бизнеса</p>
+                        </div>
+                        
+                        <div class="plan-price">
+                            <span class="price-amount" id="plan-price">99,000</span>
+                            <span class="price-currency">сум/месяц</span>
+                        </div>
+                    </div>
+                    
+                    <div class="billing-options">
+                        <h4>Период оплаты</h4>
+                        <div class="billing-toggle">
+                            <label class="billing-option">
+                                <input type="radio" name="billing" value="monthly" checked>
+                                <span class="option-content">
+                                    <span class="option-title">Ежемесячно</span>
+                                    <span class="option-price">99,000 сум/месяц</span>
+                                </span>
+                            </label>
+                            
+                            <label class="billing-option">
+                                <input type="radio" name="billing" value="yearly">
+                                <span class="option-content">
+                                    <span class="option-title">Ежегодно</span>
+                                    <span class="option-price">79,200 сум/месяц</span>
+                                    <span class="option-discount">Экономия 20%</span>
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="order-total">
+                        <div class="total-row">
+                            <span>Стоимость подписки</span>
+                            <span id="subscription-cost">99,000 сум</span>
+                        </div>
+                        <div class="total-row">
+                            <span>Комиссия</span>
+                            <span id="commission-cost">2,475 сум</span>
+                        </div>
+                        <div class="total-row total">
+                            <span>Итого к оплате</span>
+                            <span id="total-cost">101,475 сум</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Form -->
+                <div class="payment-form">
+                    <div class="form-header">
+                        <h2>Данные для оплаты</h2>
+                        <p>Безопасная оплата через защищенное соединение</p>
+                    </div>
+                    
+                    <form id="payment-form">
+                        <!-- Personal Information -->
+                        <div class="form-section">
+                            <h3>Личные данные</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="first-name">Имя *</label>
+                                    <input type="text" id="first-name" class="input" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="last-name">Фамилия *</label>
+                                    <input type="text" id="last-name" class="input" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email *</label>
+                                <input type="email" id="email" class="input" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Номер телефона *</label>
+                                <input type="tel" id="phone" class="input" placeholder="+998 XX XXX XX XX" required>
+                            </div>
+                        </div>
+
+                        <!-- Payment Method Selection -->
+                        <div class="form-section">
+                            <h3>Способ оплаты</h3>
+                            <div class="payment-methods">
+                                <label class="payment-method">
+                                    <input type="radio" name="payment-method" value="uzcard" checked>
+                                    <div class="method-content">
+                                        <div class="method-icon">
+                                            <i class="fas fa-credit-card"></i>
+                                        </div>
+                                        <div class="method-info">
+                                            <span class="method-name">UzCard</span>
+                                            <span class="method-description">Банковская карта</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="payment-method">
+                                    <input type="radio" name="payment-method" value="humo">
+                                    <div class="method-content">
+                                        <div class="method-icon">
+                                            <i class="fas fa-credit-card"></i>
+                                        </div>
+                                        <div class="method-info">
+                                            <span class="method-name">Humo</span>
+                                            <span class="method-description">Банковская карта</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="payment-method">
+                                    <input type="radio" name="payment-method" value="click">
+                                    <div class="method-content">
+                                        <div class="method-icon">
+                                            <i class="fas fa-mobile-alt"></i>
+                                        </div>
+                                        <div class="method-info">
+                                            <span class="method-name">Click</span>
+                                            <span class="method-description">Мобильный платеж</span>
+                                        </div>
+                                    </div>
+                                </label>
+                                
+                                <label class="payment-method">
+                                    <input type="radio" name="payment-method" value="payme">
+                                    <div class="method-content">
+                                        <div class="method-icon">
+                                            <i class="fas fa-mobile-alt"></i>
+                                        </div>
+                                        <div class="method-info">
+                                            <span class="method-name">Payme</span>
+                                            <span class="method-description">Мобильный платеж</span>
+                                        </div>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Card Details (for UzCard/Humo) -->
+                        <div class="form-section" id="card-details">
+                            <h3>Данные карты</h3>
+                            <div class="form-group">
+                                <label for="card-number">Номер карты *</label>
+                                <input type="text" id="card-number" class="input" placeholder="0000 0000 0000 0000" maxlength="19" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="card-expiry">Срок действия *</label>
+                                    <input type="text" id="card-expiry" class="input" placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="card-cvv">CVV *</label>
+                                    <input type="text" id="card-cvv" class="input" placeholder="123" maxlength="4" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="card-holder">Имя держателя карты *</label>
+                                <input type="text" id="card-holder" class="input" placeholder="IVAN IVANOV" required>
+                            </div>
+                        </div>
+
+                        <!-- Mobile Payment (for Click/Payme) -->
+                        <div class="form-section" id="mobile-payment" style="display: none;">
+                            <h3>Мобильный платеж</h3>
+                            <div class="form-group">
+                                <label for="mobile-number">Номер телефона *</label>
+                                <input type="tel" id="mobile-number" class="input" placeholder="+998 XX XXX XX XX" required>
+                            </div>
+                            <p class="payment-note">
+                                <i class="fas fa-info-circle"></i>
+                                После подтверждения вы получите SMS с кодом для завершения оплаты
+                            </p>
+                        </div>
+
+                        <!-- Terms and Conditions -->
+                        <div class="form-section">
+                            <div class="terms-checkbox">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="terms" required>
+                                    <span class="checkmark"></span>
+                                    Я согласен с <a href="#" class="link">условиями использования</a> и <a href="#" class="link">политикой конфиденциальности</a>
+                                </label>
+                            </div>
+                            <div class="terms-checkbox">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="auto-renewal" checked>
+                                    <span class="checkmark"></span>
+                                    Автоматическое продление подписки
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Payment Button -->
+                        <div class="payment-actions">
+                            <button type="submit" class="btn btn-primary btn-large btn-full" id="pay-button">
+                                <i class="fas fa-lock"></i>
+                                <span id="pay-button-text">Оплатить 101,475 сум</span>
+                            </button>
+                            <p class="security-note">
+                                <i class="fas fa-shield-alt"></i>
+                                Ваши данные защищены SSL шифрованием и соответствуют стандарту PCI DSS
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Security Modal -->
+    <div id="security-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Безопасная оплата</h3>
+                <button class="modal-close" id="close-security">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="security-info">
+                    <div class="security-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <div>
+                            <h4>SSL Шифрование</h4>
+                            <p>Все данные передаются по защищенному соединению</p>
+                        </div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <i class="fas fa-lock"></i>
+                        <div>
+                            <h4>PCI DSS Соответствие</h4>
+                            <p>Соответствие международным стандартам безопасности</p>
+                        </div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <i class="fas fa-eye-slash"></i>
+                        <div>
+                            <h4>Конфиденциальность</h4>
+                            <p>Ваши данные не сохраняются в нашей системе</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="success-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Оплата прошла успешно!</h3>
+            </div>
+            <div class="modal-body">
+                <div class="success-content">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h4>Добро пожаловать в Bugalter AI!</h4>
+                    <p>Ваша подписка активирована. Вы можете начать использовать все функции выбранного тарифа.</p>
+                    
+                    <div class="success-actions">
+                        <a href="index.html" class="btn btn-primary">
+                            <i class="fas fa-rocket"></i>
+                            Перейти к приложению
+                        </a>
+                        <a href="landing-page.html" class="btn btn-outline">
+                            <i class="fas fa-home"></i>
+                            На главную
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/payment.js"></script>
+</body>
+</html> 

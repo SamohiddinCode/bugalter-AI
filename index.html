@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bugalter AI - Умная бухгалтерия</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <div class="logo">
+                    <img src="img/logo.jpg" alt="Bugalter AI" class="logo-img">
+                </div>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="#dashboard" class="nav-link active">Дашборд</a></li>
+                <li><a href="#transactions" class="nav-link">Транзакции</a></li>
+                <li><a href="#analytics" class="nav-link">Аналитика</a></li>
+                <li><a href="#reports" class="nav-link">Отчеты</a></li>
+                <li><a href="#ai-insights" class="nav-link">AI Анализ</a></li>
+                <li><a href="#settings" class="nav-link">Настройки</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="btn btn-secondary" id="theme-toggle">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button class="btn btn-primary" id="add-transaction">
+                    <i class="fas fa-plus"></i>
+                    Добавить
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="container">
+                <h1 class="section-title">Дашборд</h1>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon income">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="total-income">0</h3>
+                            <p class="stat-label">Доходы</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon expense">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="total-expense">0</h3>
+                            <p class="stat-label">Расходы</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon balance">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="total-balance">0</h3>
+                            <p class="stat-label">Баланс</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <div class="stat-icon transactions">
+                            <i class="fas fa-list"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="total-transactions">0</h3>
+                            <p class="stat-label">Транзакции</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Insights Card -->
+                <div class="ai-insights-card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-robot"></i> AI Анализ</h3>
+                        <span class="ai-status">Активен</span>
+                    </div>
+                    <div class="card-body">
+                        <div id="ai-insights-content">
+                            <div class="insight-item">
+                                <i class="fas fa-lightbulb"></i>
+                                <div class="insight-content">
+                                    <h4>Рекомендация</h4>
+                                    <p>Ваши расходы на продукты на 15% выше среднего. Рассмотрите возможность оптимизации.</p>
+                                </div>
+                            </div>
+                            <div class="insight-item">
+                                <i class="fas fa-chart-line"></i>
+                                <div class="insight-content">
+                                    <h4>Тренд</h4>
+                                    <p>Ваши доходы растут на 8% в месяц. Отличная динамика!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="charts-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Динамика доходов/расходов</h3>
+                            <div class="period-selector">
+                                <button class="btn btn-sm" data-period="week">Неделя</button>
+                                <button class="btn btn-sm active" data-period="month">Месяц</button>
+                                <button class="btn btn-sm" data-period="quarter">Квартал</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="income-expense-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Распределение по категориям</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="category-pie-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="dashboard-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Последние транзакции</h3>
+                            <button class="btn btn-text" id="view-all-transactions">
+                                Посмотреть все
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="recent-transactions-list">
+                                <!-- Transactions will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Категории расходов</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="expense-categories">
+                                <!-- Categories will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Transactions Section -->
+        <section id="transactions" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h1 class="section-title">Транзакции</h1>
+                    <div class="section-actions">
+                        <button class="btn btn-outline" id="import-csv">
+                            <i class="fas fa-upload"></i>
+                            Импорт CSV
+                        </button>
+                        <button class="btn btn-outline" id="sync-telegram">
+                            <i class="fab fa-telegram"></i>
+                            Синхронизация
+                        </button>
+                        <button class="btn btn-primary" id="add-transaction-btn">
+                            <i class="fas fa-plus"></i>
+                            Добавить транзакцию
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="filters">
+                    <div class="filter-group">
+                        <input type="text" id="search-transactions" placeholder="Поиск транзакций..." class="input">
+                    </div>
+                    <div class="filter-group">
+                        <select id="category-filter" class="select">
+                            <option value="">Все категории</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="type-filter" class="select">
+                            <option value="">Все типы</option>
+                            <option value="income">Доходы</option>
+                            <option value="expense">Расходы</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <input type="date" id="date-filter" class="input">
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="card">
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table" id="transactions-table">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Описание</th>
+                                        <th>Категория</th>
+                                        <th>Сумма</th>
+                                        <th>Тип</th>
+                                        <th>Источник</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="transactions-tbody">
+                                    <!-- Transactions will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Analytics Section -->
+        <section id="analytics" class="section">
+            <div class="container">
+                <h1 class="section-title">Аналитика</h1>
+                
+                <div class="analytics-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Тренды расходов</h3>
+                            <div class="period-selector">
+                                <button class="btn btn-sm" data-period="3m">3 мес</button>
+                                <button class="btn btn-sm active" data-period="6m">6 мес</button>
+                                <button class="btn btn-sm" data-period="1y">1 год</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="trends-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Сравнение периодов</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="comparison-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Бюджет vs Факт</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="budget-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Прогноз расходов</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="forecast-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Reports Section -->
+        <section id="reports" class="section">
+            <div class="container">
+                <h1 class="section-title">Отчеты</h1>
+                
+                <div class="reports-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Финансовый обзор</h3>
+                            <div class="period-selector">
+                                <button class="btn btn-sm" data-period="month">Месяц</button>
+                                <button class="btn btn-sm active" data-period="quarter">Квартал</button>
+                                <button class="btn btn-sm" data-period="year">Год</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="financial-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Топ категорий</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="top-categories">
+                                <!-- Categories chart will be here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Reports -->
+                <div class="advanced-reports">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Детальные отчеты</h3>
+                            <div class="report-actions">
+                                <button class="btn btn-outline" id="export-pdf">
+                                    <i class="fas fa-file-pdf"></i>
+                                    PDF
+                                </button>
+                                <button class="btn btn-outline" id="export-excel">
+                                    <i class="fas fa-file-excel"></i>
+                                    Excel
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="report-tabs">
+                                <button class="tab-btn active" data-tab="summary">Сводка</button>
+                                <button class="tab-btn" data-tab="categories">По категориям</button>
+                                <button class="tab-btn" data-tab="timeline">По времени</button>
+                                <button class="tab-btn" data-tab="comparison">Сравнение</button>
+                            </div>
+                            <div id="report-content">
+                                <!-- Report content will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Insights Section -->
+        <section id="ai-insights" class="section">
+            <div class="container">
+                <h1 class="section-title">AI Анализ</h1>
+                
+                <div class="ai-insights-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-robot"></i> Умные рекомендации</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="ai-recommendations">
+                                <!-- AI recommendations will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-line"></i> Прогнозы</h3>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="ai-forecast-chart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-lightbulb"></i> Анализ паттернов</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="pattern-analysis">
+                                <!-- Pattern analysis will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-bullseye"></i> Цели и достижения</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="goals-progress">
+                                <!-- Goals progress will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Settings Section -->
+        <section id="settings" class="section">
+            <div class="container">
+                <h1 class="section-title">Настройки</h1>
+                
+                <div class="settings-grid">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Общие настройки</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <label>Валюта</label>
+                                <select id="currency" class="select">
+                                    <option value="UZS">UZS (сум)</option>
+                                    <option value="USD">USD (доллар)</option>
+                                    <option value="EUR">EUR (евро)</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Язык</label>
+                                <select id="language" class="select">
+                                    <option value="ru">Русский</option>
+                                    <option value="uz">O'zbekcha</option>
+                                    <option value="en">English</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label>Тема</label>
+                                <select id="theme" class="select">
+                                    <option value="light">Светлая</option>
+                                    <option value="dark">Темная</option>
+                                    <option value="auto">Авто</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Telegram интеграция</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <label>Статус подключения</label>
+                                <span class="connection-status" id="telegram-status">Отключено</span>
+                            </div>
+                            <div class="setting-item">
+                                <label>Автосинхронизация</label>
+                                <input type="checkbox" id="auto-sync" class="checkbox">
+                            </div>
+                            <button class="btn btn-outline" id="connect-telegram">
+                                <i class="fab fa-telegram"></i>
+                                Подключить бота
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>AI настройки</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <label>AI анализ</label>
+                                <input type="checkbox" id="ai-analysis" class="checkbox" checked>
+                            </div>
+                            <div class="setting-item">
+                                <label>Автоматические рекомендации</label>
+                                <input type="checkbox" id="ai-recommendations" class="checkbox" checked>
+                            </div>
+                            <div class="setting-item">
+                                <label>Прогнозирование</label>
+                                <input type="checkbox" id="ai-forecast" class="checkbox" checked>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Категории</h3>
+                        </div>
+                        <div class="card-body">
+                            <div id="categories-list">
+                                <!-- Categories will be loaded here -->
+                            </div>
+                            <button class="btn btn-outline" id="add-category">
+                                <i class="fas fa-plus"></i>
+                                Добавить категорию
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <div id="transaction-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modal-title">Добавить транзакцию</h3>
+                <button class="modal-close" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="transaction-form">
+                    <div class="form-group">
+                        <label for="transaction-date">Дата</label>
+                        <input type="date" id="transaction-date" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-description">Описание</label>
+                        <input type="text" id="transaction-description" class="input" placeholder="Введите описание" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-category">Категория</label>
+                        <select id="transaction-category" class="select" required>
+                            <option value="">Выберите категорию</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-amount">Сумма</label>
+                        <input type="number" id="transaction-amount" class="input" placeholder="0" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-type">Тип</label>
+                        <select id="transaction-type" class="select" required>
+                            <option value="income">Доход</option>
+                            <option value="expense">Расход</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="transaction-source">Источник</label>
+                        <select id="transaction-source" class="select">
+                            <option value="manual">Ручной ввод</option>
+                            <option value="telegram">Telegram бот</option>
+                            <option value="import">Импорт</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-transaction">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script src="js/transactions.js"></script>
+    <script src="js/reports.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/ai-insights.js"></script>
+    <script src="js/utils.js"></script>
+</body>
+</html> 

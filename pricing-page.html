@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тарифы - Bugalter AI</title>
+    <link rel="stylesheet" href="css/landing.css">
+    <link rel="stylesheet" href="css/pricing.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <a href="landing-page.html" class="logo">
+                    <img src="img/logo.png" alt="Bugalter AI" class="logo-img">
+                </a>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="landing-page.html#features">Возможности</a></li>
+                <li><a href="landing-page.html#pricing">Тарифы</a></li>
+                <li><a href="landing-page.html#about">О нас</a></li>
+                <li><a href="landing-page.html#partnership">Сотрудничество</a></li>
+                <li><a href="landing-page.html#contact">Контакты</a></li>
+            </ul>
+            <div class="nav-actions">
+                <a href="auth-system.html" class="btn btn-outline">Войти</a>
+                <a href="auth-system.html" class="btn btn-primary">Начать бесплатно</a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Pricing Hero -->
+    <section class="pricing-hero">
+        <div class="container">
+            <div class="pricing-hero-content">
+                <h1>Выберите подходящий тариф</h1>
+                <p>Гибкие планы для разных потребностей - от личных финансов до корпоративной бухгалтерии</p>
+                
+                <div class="billing-toggle">
+                    <span>Ежемесячно</span>
+                    <label class="switch">
+                        <input type="checkbox" id="billing-toggle">
+                        <span class="slider"></span>
+                    </label>
+                    <span>Ежегодно <span class="discount">-20%</span></span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Pricing -->
+    <section class="detailed-pricing">
+        <div class="container">
+            <div class="pricing-grid">
+                <!-- Free Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Бесплатно</h3>
+                        <div class="price">
+                            <span class="price-amount">0</span>
+                            <span class="price-currency">сум/месяц</span>
+                        </div>
+                        <p class="pricing-description">Для начала работы с личными финансами</p>
+                    </div>
+                    
+                    <div class="pricing-features">
+                        <h4>Включено:</h4>
+                        <ul>
+                            <li><i class="fas fa-check"></i> 100 транзакций в месяц</li>
+                            <li><i class="fas fa-check"></i> Базовые отчеты</li>
+                            <li><i class="fas fa-check"></i> 3 категории</li>
+                            <li><i class="fas fa-check"></i> Email поддержка</li>
+                            <li><i class="fas fa-check"></i> Веб-интерфейс</li>
+                            <li><i class="fas fa-check"></i> Импорт CSV</li>
+                        </ul>
+                        
+                        <h4>Ограничения:</h4>
+                        <ul class="limitations">
+                            <li><i class="fas fa-times"></i> Реклама в интерфейсе</li>
+                            <li><i class="fas fa-times"></i> AI-аналитика</li>
+                            <li><i class="fas fa-times"></i> Экспорт отчетов</li>
+                            <li><i class="fas fa-times"></i> Telegram бот</li>
+                            <li><i class="fas fa-times"></i> Интеграции с банками</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="pricing-actions">
+                        <a href="auth-system.html" class="btn btn-outline btn-full">Начать бесплатно</a>
+                    </div>
+                </div>
+
+                <!-- Plus Plan -->
+                <div class="pricing-card featured">
+                    <div class="pricing-badge">Популярный</div>
+                    <div class="pricing-header">
+                        <h3>Plus</h3>
+                        <div class="price">
+                            <span class="price-amount" data-monthly="99,000" data-yearly="79,200">99,000</span>
+                            <span class="price-currency">сум/месяц</span>
+                        </div>
+                        <p class="pricing-description">Для активных пользователей и малого бизнеса</p>
+                    </div>
+                    
+                    <div class="pricing-features">
+                        <h4>Все из Free +:</h4>
+                        <ul>
+                            <li><i class="fas fa-check"></i> 1000 транзакций в месяц</li>
+                            <li><i class="fas fa-check"></i> Расширенная аналитика</li>
+                            <li><i class="fas fa-check"></i> Неограниченные категории</li>
+                            <li><i class="fas fa-check"></i> Экспорт в PDF/Excel</li>
+                            <li><i class="fas fa-check"></i> Без рекламы</li>
+                            <li><i class="fas fa-check"></i> Telegram бот</li>
+                            <li><i class="fas fa-check"></i> Приоритетная поддержка</li>
+                            <li><i class="fas fa-check"></i> Базовые AI-рекомендации</li>
+                            <li><i class="fas fa-check"></i> Мобильная версия</li>
+                            <li><i class="fas fa-check"></i> Импорт банковских выписок</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="pricing-actions">
+                        <a href="payment.html?plan=plus" class="btn btn-primary btn-full">Выбрать Plus</a>
+                    </div>
+                </div>
+
+                <!-- Pro Plan -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Pro</h3>
+                        <div class="price">
+                            <span class="price-amount" data-monthly="299,000" data-yearly="239,200">299,000</span>
+                            <span class="price-currency">сум/месяц</span>
+                        </div>
+                        <p class="pricing-description">Для бизнеса и профессионального использования</p>
+                    </div>
+                    
+                    <div class="pricing-features">
+                        <h4>Все из Plus +:</h4>
+                        <ul>
+                            <li><i class="fas fa-check"></i> Неограниченные транзакции</li>
+                            <li><i class="fas fa-check"></i> Полная AI-аналитика</li>
+                            <li><i class="fas fa-check"></i> Прогнозирование расходов</li>
+                            <li><i class="fas fa-check"></i> Интеграции с банками</li>
+                            <li><i class="fas fa-check"></i> Многопользовательский режим</li>
+                            <li><i class="fas fa-check"></i> API доступ</li>
+                            <li><i class="fas fa-check"></i> Персональный менеджер</li>
+                            <li><i class="fas fa-check"></i> Налоговые отчеты</li>
+                            <li><i class="fas fa-check"></i> Интеграция с Soliq.uz</li>
+                            <li><i class="fas fa-check"></i> Кастомизация</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="pricing-actions">
+                        <a href="payment.html?plan=pro" class="btn btn-outline btn-full">Выбрать Pro</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature Comparison -->
+    <section class="feature-comparison">
+        <div class="container">
+            <div class="section-header">
+                <h2>Детальное сравнение функций</h2>
+                <p>Выберите план, который подходит именно вам</p>
+            </div>
+            
+            <div class="comparison-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Функция</th>
+                            <th>Бесплатно</th>
+                            <th>Plus</th>
+                            <th>Pro</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Транзакции в месяц</td>
+                            <td>100</td>
+                            <td>1,000</td>
+                            <td>Неограниченно</td>
+                        </tr>
+                        <tr>
+                            <td>Категории</td>
+                            <td>3</td>
+                            <td>Неограниченно</td>
+                            <td>Неограниченно</td>
+                        </tr>
+                        <tr>
+                            <td>AI-категоризация</td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Прогнозирование</td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Экспорт отчетов</td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Telegram бот</td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Банковские интеграции</td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Многопользовательский режим</td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>API доступ</td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-times"></i></td>
+                            <td><i class="fas fa-check"></i></td>
+                        </tr>
+                        <tr>
+                            <td>Поддержка</td>
+                            <td>Email</td>
+                            <td>Приоритетная</td>
+                            <td>Персональный менеджер</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Payment Methods -->
+    <section class="payment-methods">
+        <div class="container">
+            <div class="section-header">
+                <h2>Способы оплаты</h2>
+                <p>Безопасные и удобные методы оплаты</p>
+            </div>
+            
+            <div class="payment-grid">
+                <div class="payment-card">
+                    <div class="payment-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <h3>Банковские карты</h3>
+                    <p>UzCard, Humo, Visa, Mastercard</p>
+                </div>
+                
+                <div class="payment-card">
+                    <div class="payment-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Мобильные платежи</h3>
+                    <p>Click, Payme, Apelsin</p>
+                </div>
+                
+                <div class="payment-card">
+                    <div class="payment-icon">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <h3>Банковский перевод</h3>
+                    <p>Прямой перевод на счет</p>
+                </div>
+                
+                <div class="payment-card">
+                    <div class="payment-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Безопасность</h3>
+                    <p>SSL шифрование, PCI DSS</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="faq">
+        <div class="container">
+            <div class="section-header">
+                <h2>Часто задаваемые вопросы</h2>
+                <p>Ответы на популярные вопросы о тарифах</p>
+            </div>
+            
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Могу ли я изменить тариф?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Да, вы можете изменить тариф в любое время. При переходе на более дорогой план оплата производится пропорционально. При переходе на более дешевый план изменения вступят в силу со следующего периода.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Есть ли пробный период?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Да, для всех платных тарифов предусмотрен 14-дневный пробный период. Вы можете протестировать все функции бесплатно.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Как происходит отмена подписки?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Вы можете отменить подписку в любое время в настройках аккаунта. Доступ к функциям сохранится до конца оплаченного периода.</p>
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <h3>Есть ли скидки для годовой оплаты?</h3>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>Да, при оплате за год предоставляется скидка 20%. Это позволяет сэкономить значительную сумму при долгосрочном использовании.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="pricing-cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Готовы начать?</h2>
+                <p>Выберите подходящий тариф и начните управлять финансами с помощью AI</p>
+                <div class="cta-actions">
+                    <a href="auth-system.html" class="btn btn-primary btn-large">
+                        <i class="fas fa-rocket"></i>
+                        Начать бесплатно
+                    </a>
+                    <a href="landing-page.html#contact" class="btn btn-outline btn-large">
+                        <i class="fas fa-envelope"></i>
+                        Связаться с нами
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="footer-logo">
+                        <img src="img/logo.png" alt="Bugalter AI" class="logo-img">
+                    </div>
+                    <p>Умная бухгалтерия для современного бизнеса и личных финансов.</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Тарифы</h4>
+                    <ul>
+                        <li><a href="#free">Бесплатно</a></li>
+                        <li><a href="#plus">Plus</a></li>
+                        <li><a href="#pro">Pro</a></li>
+                        <li><a href="#enterprise">Enterprise</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Поддержка</h4>
+                    <ul>
+                        <li><a href="#">Документация</a></li>
+                        <li><a href="#">FAQ</a></li>
+                        <li><a href="#">Контакты</a></li>
+                        <li><a href="#">Статус системы</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <div class="contact-info">
+                        <p><i class="fas fa-envelope"></i> info@bugalter-ai.com</p>
+                        <p><i class="fas fa-phone"></i> +998 71 123 45 67</p>
+                        <p><i class="fas fa-map-marker-alt"></i> Ташкент, Узбекистан</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Bugalter AI. Все права защищены.</p>
+                <div class="footer-links">
+                    <a href="#">Политика конфиденциальности</a>
+                    <a href="#">Условия использования</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/pricing.js"></script>
+</body>
+</html> 

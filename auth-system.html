@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bugalter AI - Аутентификация</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/auth.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Логотип и заголовок -->
+        <div class="auth-header">
+            <div class="logo">
+                <img src="img/logo.jpg" alt="Bugalter AI" class="logo-img">
+            </div>
+            <h1>Умная бухгалтерия</h1>
+            <p>Управляйте финансами с помощью искусственного интеллекта</p>
+        </div>
+
+        <!-- Формы аутентификации -->
+        <div class="auth-forms">
+            <!-- Форма регистрации -->
+            <div class="auth-form" id="register-form">
+                <h2>Регистрация</h2>
+                <form id="registration-form">
+                    <div class="form-group">
+                        <label for="first-name">Имя *</label>
+                        <input type="text" id="first-name" class="input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="last-name">Фамилия *</label>
+                        <input type="text" id="last-name" class="input" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Номер телефона *</label>
+                        <input type="tel" id="phone" class="input" placeholder="+998 XX XXX XX XX" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" class="input" placeholder="example@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="account-type">Тип аккаунта *</label>
+                        <select id="account-type" class="select" required>
+                            <option value="">Выберите тип аккаунта</option>
+                            <option value="personal">Личный аккаунт</option>
+                            <option value="business">Бизнес аккаунт</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="role-group" style="display: none;">
+                        <label for="role">Должность в компании *</label>
+                        <select id="role" class="select">
+                            <option value="">Выберите должность</option>
+                            <option value="owner">Владелец/Директор</option>
+                            <option value="accountant">Бухгалтер</option>
+                            <option value="manager">Менеджер</option>
+                            <option value="employee">Сотрудник</option>
+                            <option value="other">Другое</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group" id="company-name-group" style="display: none;">
+                        <label for="company-name">Название компании *</label>
+                        <input type="text" id="company-name" class="input">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="terms" required>
+                            <span class="checkmark"></span>
+                            Я согласен с <a href="#" class="link">условиями использования</a> и <a href="#" class="link">политикой конфиденциальности</a>
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-user-plus"></i>
+                        Зарегистрироваться
+                    </button>
+                    
+                    <div class="verification-code-container" style="display: none;" id="verification-code-section">
+                        <input type="text" id="verification-code" class="input" placeholder="Введите код из email" maxlength="6">
+                        <button type="button" class="btn btn-secondary" id="send-code">
+                            <i class="fas fa-paper-plane"></i>
+                            Отправить код
+                        </button>
+                        <button type="button" class="btn btn-primary" id="verify-code">
+                            <i class="fas fa-check"></i>
+                            Подтвердить код
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="auth-switch">
+                    <p>Уже есть аккаунт? <a href="#" id="show-login">Войти</a></p>
+                </div>
+            </div>
+
+            <!-- Форма входа -->
+            <div class="auth-form" id="login-form" style="display: none;">
+                <h2>Вход в систему</h2>
+                <form id="login-form-element">
+                    <div class="form-group">
+                        <label for="login-email">Email</label>
+                        <input type="email" id="login-email" class="input" placeholder="example@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="login-password">Пароль</label>
+                        <input type="password" id="login-password" class="input" placeholder="Введите пароль" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Войти
+                    </button>
+                </form>
+                
+                <div class="auth-switch">
+                    <p>Нет аккаунта? <a href="#" id="show-register">Зарегистрироваться</a></p>
+                </div>
+            </div>
+            
+            <!-- Форма установки пароля -->
+            <div class="auth-form" id="password-setup-form" style="display: none;">
+                <h2>Установка пароля</h2>
+                <p>Создайте надежный пароль для вашего аккаунта</p>
+                <form id="password-setup-form-element">
+                    <div class="form-group">
+                        <label for="password">Пароль</label>
+                        <input type="password" id="password" class="input" placeholder="Минимум 6 символов" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="confirm-password">Подтвердите пароль</label>
+                        <input type="password" id="confirm-password" class="input" placeholder="Повторите пароль" required>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">
+                        <i class="fas fa-lock"></i>
+                        Установить пароль
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Информация о продукте -->
+        <div class="auth-info">
+            <div class="info-card">
+                <i class="fas fa-shield-alt"></i>
+                <h3>Безопасность</h3>
+                <p>Ваши данные защищены современными методами шифрования</p>
+            </div>
+            
+            <div class="info-card">
+                <i class="fas fa-robot"></i>
+                <h3>AI Аналитика</h3>
+                <p>Искусственный интеллект поможет оптимизировать ваши финансы</p>
+            </div>
+            
+            <div class="info-card">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Доступность</h3>
+                <p>Работайте с финансами с любого устройства</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="verification-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Подтверждение email</h3>
+                <button class="modal-close" id="close-verification">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Код подтверждения отправлен на ваш email. Введите его ниже:</p>
+                <div class="verification-inputs">
+                    <input type="text" class="verification-input" maxlength="1" data-index="0">
+                    <input type="text" class="verification-input" maxlength="1" data-index="1">
+                    <input type="text" class="verification-input" maxlength="1" data-index="2">
+                    <input type="text" class="verification-input" maxlength="1" data-index="3">
+                    <input type="text" class="verification-input" maxlength="1" data-index="4">
+                    <input type="text" class="verification-input" maxlength="1" data-index="5">
+                </div>
+                <div class="verification-actions">
+                    <button class="btn btn-secondary" id="resend-code">
+                        <i class="fas fa-redo"></i>
+                        Отправить повторно
+                    </button>
+                    <button class="btn btn-primary" id="verify-code">
+                        <i class="fas fa-check"></i>
+                        Подтвердить
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+</body>
+</html> 
