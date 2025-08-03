@@ -125,10 +125,13 @@ class TransactionManager {
             const transactions = await this.loadTransactions();
             this.filteredTransactions = this.filterTransactions(transactions);
 
+            // Сортировка по дате в обратном порядке (новые сначала)
+            this.filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
+
             if (this.filteredTransactions.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="6" class="empty-state">
+                        <td colspan="7" class="empty-state">
                             <i class="fas fa-receipt"></i>
                             <h3>Нет транзакций</h3>
                             <p>Добавьте первую транзакцию или измените фильтры</p>
@@ -138,7 +141,14 @@ class TransactionManager {
                 return;
             }
 
-            tbody.innerHTML = this.filteredTransactions.map(transaction => `
+            tbody.innerHTML = this.filteredTransactions.map(transaction => {
+                // Определяем примечание для транзакций в минусе
+                let note = '';
+                if (transaction.type === 'expense') {
+                    note = 'Транзакция в минусе по доходности';
+                }
+                
+                return `
                 <tr>
                     <td>${new Date(transaction.date).toLocaleDateString('ru-RU')}</td>
                     <td>${transaction.description || 'Без описания'}</td>
@@ -156,6 +166,9 @@ class TransactionManager {
                         </span>
                     </td>
                     <td>
+                        ${note ? `<span class="note-badge">${note}</span>` : ''}
+                    </td>
+                    <td>
                         <div class="table-actions">
                             <button class="btn btn-sm btn-text" onclick="window.bugalterApp.editTransaction('${transaction.id}')">
                                 <i class="fas fa-edit"></i>
@@ -166,12 +179,12 @@ class TransactionManager {
                         </div>
                     </td>
                 </tr>
-            `).join('');
+            `}).join('');
         } catch (error) {
             console.error('Error rendering transactions:', error);
             tbody.innerHTML = `
                 <tr>
-                    <td colspan="6" class="error-state">
+                    <td colspan="7" class="error-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <h3>Ошибка загрузки</h3>
                         <p>Не удалось загрузить транзакции</p>

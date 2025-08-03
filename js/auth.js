@@ -15,7 +15,31 @@ class AuthSystem {
         this.setupFormSwitching();
         this.setupAccountTypeHandling();
         this.setupVerificationInputs();
-        console.log('AuthSystem initialized');
+        
+        // Check URL hash and show appropriate form
+        const hash = window.location.hash;
+        if (hash === '#login') {
+            this.switchToLogin();
+        } else {
+            this.switchToRegister();
+        }
+        
+        // Listen for hash changes
+        window.addEventListener('hashchange', () => {
+            const newHash = window.location.hash;
+            if (newHash === '#login') {
+                this.switchToLogin();
+            } else {
+                this.switchToRegister();
+            }
+        });
+        
+        console.log('AuthSystem initialized successfully');
+        
+        // Check if forms exist
+        const registerForm = document.getElementById('register-form');
+        const loginForm = document.getElementById('login-form');
+        console.log('Forms found:', { registerForm, loginForm });
     }
     
     // API Helper Methods
@@ -153,18 +177,24 @@ class AuthSystem {
     }
     
     setupFormSwitching() {
+        console.log('Setting up form switching...');
+        
         const showLoginBtn = document.getElementById('show-login');
+        console.log('Show login button:', showLoginBtn);
         if (showLoginBtn) {
             showLoginBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                console.log('Login button clicked!');
                 this.switchToLogin();
             });
         }
         
         const showRegisterBtn = document.getElementById('show-register');
+        console.log('Show register button:', showRegisterBtn);
         if (showRegisterBtn) {
             showRegisterBtn.addEventListener('click', (e) => {
                 e.preventDefault();
+                console.log('Register button clicked!');
                 this.switchToRegister();
             });
         }
@@ -545,15 +575,37 @@ class AuthSystem {
     }
     
     switchToLogin() {
-        document.getElementById('register-form').style.display = 'none';
-        document.getElementById('login-form').style.display = 'block';
-        this.currentForm = 'login';
+        console.log('Switching to login form...');
+        const registerForm = document.getElementById('register-form');
+        const loginForm = document.getElementById('login-form');
+        
+        if (registerForm && loginForm) {
+            registerForm.style.display = 'none';
+            loginForm.style.display = 'block';
+            this.currentForm = 'login';
+            // Update URL hash
+            window.location.hash = 'login';
+            console.log('Switched to login form successfully');
+        } else {
+            console.error('Forms not found!', { registerForm, loginForm });
+        }
     }
     
     switchToRegister() {
-        document.getElementById('login-form').style.display = 'none';
-        document.getElementById('register-form').style.display = 'block';
-        this.currentForm = 'register';
+        console.log('Switching to register form...');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        
+        if (loginForm && registerForm) {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            this.currentForm = 'register';
+            // Update URL hash
+            window.location.hash = '';
+            console.log('Switched to register form successfully');
+        } else {
+            console.error('Forms not found!', { loginForm, registerForm });
+        }
     }
     
     showVerificationModal() {

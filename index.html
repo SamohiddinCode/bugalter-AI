@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bugalter AI - Умная бухгалтерия</title>
+    <title>Bugalter AI — Персональный бюджетный ассистент</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/components.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,24 +16,25 @@
         <nav class="navbar">
             <div class="nav-brand">
                 <div class="logo">
-                    <img src="img/logo.jpg" alt="Bugalter AI" class="logo-img">
+                    <span class="logo-text">Bugalter AI</span>
                 </div>
             </div>
             <ul class="nav-menu">
                 <li><a href="#dashboard" class="nav-link active">Дашборд</a></li>
                 <li><a href="#transactions" class="nav-link">Транзакции</a></li>
+                <li><a href="#budget" class="nav-link">Бюджет</a></li>
+                <li><a href="#goals" class="nav-link">Цели</a></li>
                 <li><a href="#analytics" class="nav-link">Аналитика</a></li>
-                <li><a href="#reports" class="nav-link">Отчеты</a></li>
-                <li><a href="#ai-insights" class="nav-link">AI Анализ</a></li>
+                <li><a href="#ai-chat" class="nav-link">AI Ассистент</a></li>
                 <li><a href="#settings" class="nav-link">Настройки</a></li>
             </ul>
             <div class="nav-actions">
                 <button class="btn btn-secondary" id="theme-toggle">
                     <i class="fas fa-moon"></i>
                 </button>
-                <button class="btn btn-primary" id="add-transaction">
+                <button class="btn btn-primary" id="quick-add">
                     <i class="fas fa-plus"></i>
-                    Добавить
+                    Быстрое добавление
                 </button>
             </div>
         </nav>
@@ -44,86 +45,92 @@
         <!-- Dashboard Section -->
         <section id="dashboard" class="section active">
             <div class="container">
-                <h1 class="section-title">Дашборд</h1>
+                <div class="dashboard-header">
+                    <h1 class="section-title">Ваш финансовый обзор</h1>
+                    <div class="period-selector">
+                        <button class="btn btn-sm" data-period="today">Сегодня</button>
+                        <button class="btn btn-sm" data-period="week">Неделя</button>
+                        <button class="btn btn-sm active" data-period="month">Месяц</button>
+                        <button class="btn btn-sm" data-period="year">Год</button>
+                    </div>
+                </div>
                 
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon income">
+                <!-- Quick Stats -->
+                <div class="quick-stats">
+                    <div class="stat-card primary">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 class="stat-value" id="current-balance">0</h3>
+                            <p class="stat-label">Текущий баланс</p>
+                            <span class="stat-change positive">+12.5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card success">
+                        <div class="stat-icon">
                             <i class="fas fa-arrow-up"></i>
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-value" id="total-income">0</h3>
                             <p class="stat-label">Доходы</p>
+                            <span class="stat-change positive">+8.3%</span>
                         </div>
                     </div>
                     
-                    <div class="stat-card">
-                        <div class="stat-icon expense">
+                    <div class="stat-card warning">
+                        <div class="stat-icon">
                             <i class="fas fa-arrow-down"></i>
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-value" id="total-expense">0</h3>
                             <p class="stat-label">Расходы</p>
+                            <span class="stat-change negative">-5.2%</span>
                         </div>
                     </div>
                     
-                    <div class="stat-card">
-                        <div class="stat-icon balance">
-                            <i class="fas fa-wallet"></i>
+                    <div class="stat-card info">
+                        <div class="stat-icon">
+                            <i class="fas fa-chart-pie"></i>
                         </div>
                         <div class="stat-content">
-                            <h3 class="stat-value" id="total-balance">0</h3>
-                            <p class="stat-label">Баланс</p>
-                        </div>
-                    </div>
-                    
-                    <div class="stat-card">
-                        <div class="stat-icon transactions">
-                            <i class="fas fa-list"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 class="stat-value" id="total-transactions">0</h3>
-                            <p class="stat-label">Транзакции</p>
+                            <h3 class="stat-value" id="budget-used">0%</h3>
+                            <p class="stat-label">Бюджет использован</p>
+                            <span class="stat-change neutral">В норме</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- AI Insights Card -->
-                <div class="ai-insights-card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-robot"></i> AI Анализ</h3>
-                        <span class="ai-status">Активен</span>
-                    </div>
-                    <div class="card-body">
-                        <div id="ai-insights-content">
-                            <div class="insight-item">
-                                <i class="fas fa-lightbulb"></i>
-                                <div class="insight-content">
-                                    <h4>Рекомендация</h4>
-                                    <p>Ваши расходы на продукты на 15% выше среднего. Рассмотрите возможность оптимизации.</p>
-                                </div>
-                            </div>
-                            <div class="insight-item">
-                                <i class="fas fa-chart-line"></i>
-                                <div class="insight-content">
-                                    <h4>Тренд</h4>
-                                    <p>Ваши доходы растут на 8% в месяц. Отличная динамика!</p>
-                                </div>
-                            </div>
+                <!-- AI Insights Banner -->
+                <div class="ai-banner">
+                    <div class="ai-banner-content">
+                        <div class="ai-avatar">
+                            <i class="fas fa-robot"></i>
                         </div>
+                        <div class="ai-message">
+                            <h4>AI Ассистент</h4>
+                            <p id="ai-insight-text">Анализирую ваши финансы... На этой неделе вы потратили на 15% больше на продукты. Рекомендую установить лимит на эту категорию.</p>
+                        </div>
+                        <button class="btn btn-outline btn-sm" id="ask-ai">
+                            <i class="fas fa-comments"></i>
+                            Спросить AI
+                        </button>
                     </div>
                 </div>
 
-                <!-- Charts Grid -->
-                <div class="charts-grid">
-                    <div class="card">
+
+
+                <!-- Main Dashboard Grid -->
+                <div class="dashboard-grid">
+                    <!-- Income vs Expenses Chart -->
+                    <div class="card chart-card">
                         <div class="card-header">
-                            <h3>Динамика доходов/расходов</h3>
-                            <div class="period-selector">
-                                <button class="btn btn-sm" data-period="week">Неделя</button>
-                                <button class="btn btn-sm active" data-period="month">Месяц</button>
-                                <button class="btn btn-sm" data-period="quarter">Квартал</button>
+                            <h3>Доходы vs Расходы</h3>
+                            <div class="card-actions">
+                                <button class="btn btn-sm btn-outline" data-chart="income-expense">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
                             </div>
                         </div>
                         <div class="card-body">
@@ -131,39 +138,156 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <!-- Category Distribution -->
+                    <div class="card chart-card">
                         <div class="card-header">
-                            <h3>Распределение по категориям</h3>
+                            <h3>Расходы по категориям</h3>
+                            <div class="card-actions">
+                                <button class="btn btn-sm btn-outline" data-chart="categories">
+                                    <i class="fas fa-chart-pie"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body">
                             <canvas id="category-pie-chart"></canvas>
                         </div>
                     </div>
-                </div>
 
-                <!-- Recent Transactions -->
-                <div class="dashboard-grid">
+                    <!-- Recent Transactions -->
                     <div class="card">
                         <div class="card-header">
                             <h3>Последние транзакции</h3>
                             <button class="btn btn-text" id="view-all-transactions">
-                                Посмотреть все
+                                Все транзакции
                             </button>
                         </div>
                         <div class="card-body">
                             <div id="recent-transactions-list">
-                                <!-- Transactions will be loaded here -->
+                                <div class="transaction-item">
+                                    <div class="transaction-icon food">
+                                        <i class="fas fa-utensils"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Продукты</h4>
+                                        <p>Магнит</p>
+                                    </div>
+                                    <div class="transaction-amount expense">
+                                        -2,500
+                                    </div>
+                                </div>
+                                <div class="transaction-item">
+                                    <div class="transaction-icon transport">
+                                        <i class="fas fa-car"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Транспорт</h4>
+                                        <p>Такси</p>
+                                    </div>
+                                    <div class="transaction-amount expense">
+                                        -800
+                                    </div>
+                                </div>
+                                <div class="transaction-item">
+                                    <div class="transaction-icon income">
+                                        <i class="fas fa-briefcase"></i>
+                                    </div>
+                                    <div class="transaction-details">
+                                        <h4>Зарплата</h4>
+                                        <p>Работа</p>
+                                    </div>
+                                    <div class="transaction-amount income">
+                                        +150,000
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Budget Progress -->
                     <div class="card">
                         <div class="card-header">
-                            <h3>Категории расходов</h3>
+                            <h3>Прогресс бюджета</h3>
+                            <button class="btn btn-text" id="manage-budget">
+                                Управлять
+                            </button>
                         </div>
                         <div class="card-body">
-                            <div id="expense-categories">
-                                <!-- Categories will be loaded here -->
+                            <div id="budget-progress">
+                                <div class="budget-item">
+                                    <div class="budget-header">
+                                        <span class="budget-category">Продукты</span>
+                                        <span class="budget-amount">15,000 / 20,000</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 75%"></div>
+                                    </div>
+                                    <span class="budget-percentage">75%</span>
+                                </div>
+                                <div class="budget-item">
+                                    <div class="budget-header">
+                                        <span class="budget-category">Транспорт</span>
+                                        <span class="budget-amount">8,500 / 10,000</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 85%"></div>
+                                    </div>
+                                    <span class="budget-percentage">85%</span>
+                                </div>
+                                <div class="budget-item">
+                                    <div class="budget-header">
+                                        <span class="budget-category">Развлечения</span>
+                                        <span class="budget-amount">3,200 / 5,000</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 64%"></div>
+                                    </div>
+                                    <span class="budget-percentage">64%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Currency Rates Widget -->
+                    <div class="card currency-rates-card">
+                        <div class="card-header">
+                            <h3>Курсы валют</h3>
+                            <button class="btn btn-text" id="refresh-rates">
+                                <i class="fas fa-sync-alt"></i>
+                                Обновить
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="currency-rates" id="currency-rates">
+                                <div class="rate-item">
+                                    <div class="rate-info">
+                                        <span class="currency-code">USD</span>
+                                        <span class="rate-value">0 UZS</span>
+                                    </div>
+                                    <div class="rate-change positive">
+                                        <span class="change-icon">📈</span>
+                                        <span class="change-value">+0.00</span>
+                                    </div>
+                                </div>
+                                <div class="rate-item">
+                                    <div class="rate-info">
+                                        <span class="currency-code">EUR</span>
+                                        <span class="rate-value">0 UZS</span>
+                                    </div>
+                                    <div class="rate-change positive">
+                                        <span class="change-icon">📈</span>
+                                        <span class="change-value">+0.00</span>
+                                    </div>
+                                </div>
+                                <div class="rate-item">
+                                    <div class="rate-info">
+                                        <span class="currency-code">RUB</span>
+                                        <span class="rate-value">0 UZS</span>
+                                    </div>
+                                    <div class="rate-change positive">
+                                        <span class="change-icon">📈</span>
+                                        <span class="change-value">+0.00</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -179,61 +303,182 @@
                     <div class="section-actions">
                         <button class="btn btn-outline" id="import-csv">
                             <i class="fas fa-upload"></i>
-                            Импорт CSV
+                            Импорт
                         </button>
-                        <button class="btn btn-outline" id="sync-telegram">
-                            <i class="fab fa-telegram"></i>
-                            Синхронизация
+                        <button class="btn btn-outline" id="export-transactions">
+                            <i class="fas fa-download"></i>
+                            Экспорт
                         </button>
                         <button class="btn btn-primary" id="add-transaction-btn">
                             <i class="fas fa-plus"></i>
-                            Добавить транзакцию
+                            Добавить
                         </button>
                     </div>
                 </div>
 
-                <!-- Filters -->
-                <div class="filters">
-                    <div class="filter-group">
-                        <input type="text" id="search-transactions" placeholder="Поиск транзакций..." class="input">
+                <!-- Quick Filters -->
+                <div class="quick-filters">
+                    <div class="filter-chips">
+                        <button class="chip active" data-filter="all">Все</button>
+                        <button class="chip" data-filter="income">Доходы</button>
+                        <button class="chip" data-filter="expense">Расходы</button>
+                        <button class="chip" data-filter="food">Продукты</button>
+                        <button class="chip" data-filter="transport">Транспорт</button>
+                        <button class="chip" data-filter="entertainment">Развлечения</button>
                     </div>
-                    <div class="filter-group">
-                        <select id="category-filter" class="select">
-                            <option value="">Все категории</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <select id="type-filter" class="select">
-                            <option value="">Все типы</option>
-                            <option value="income">Доходы</option>
-                            <option value="expense">Расходы</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <input type="date" id="date-filter" class="input">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-transactions" placeholder="Поиск транзакций...">
                     </div>
                 </div>
 
-                <!-- Transactions Table -->
-                <div class="card">
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="table" id="transactions-table">
-                                <thead>
-                                    <tr>
-                                        <th>Дата</th>
-                                        <th>Описание</th>
-                                        <th>Категория</th>
-                                        <th>Сумма</th>
-                                        <th>Тип</th>
-                                        <th>Источник</th>
-                                        <th>Действия</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="transactions-tbody">
-                                    <!-- Transactions will be loaded here -->
-                                </tbody>
-                            </table>
+                <!-- Transactions List -->
+                <div class="transactions-list" id="transactions-list">
+                    <!-- Transactions will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Budget Section -->
+        <section id="budget" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h1 class="section-title">Бюджетирование</h1>
+                    <div class="section-actions">
+                        <button class="btn btn-outline" id="ai-budget-suggestions">
+                            <i class="fas fa-robot"></i>
+                            AI Рекомендации
+                        </button>
+                        <button class="btn btn-primary" id="create-budget">
+                            <i class="fas fa-plus"></i>
+                            Создать бюджет
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Budget Overview -->
+                <div class="budget-overview">
+                    <div class="budget-summary">
+                        <div class="budget-card">
+                            <h3>Общий бюджет</h3>
+                            <div class="budget-amount">150,000</div>
+                            <div class="budget-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 65%"></div>
+                                </div>
+                                <span>65% использовано</span>
+                            </div>
+                        </div>
+                        <div class="budget-card">
+                            <h3>Остаток</h3>
+                            <div class="budget-amount positive">52,500</div>
+                            <div class="budget-info">До конца месяца</div>
+                        </div>
+                        <div class="budget-card">
+                            <h3>Перерасход</h3>
+                            <div class="budget-amount negative">0</div>
+                            <div class="budget-info">В пределах нормы</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Budget Categories -->
+                <div class="budget-categories">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Категории бюджета</h3>
+                            <button class="btn btn-text" id="edit-categories">
+                                Редактировать
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div id="budget-categories-list">
+                                <!-- Budget categories will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Goals Section -->
+        <section id="goals" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h1 class="section-title">Цели и сбережения</h1>
+                    <div class="section-actions">
+                        <button class="btn btn-primary" id="add-goal">
+                            <i class="fas fa-plus"></i>
+                            Добавить цель
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Goals Grid -->
+                <div class="goals-grid">
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <div class="goal-icon">
+                                <i class="fas fa-home"></i>
+                            </div>
+                            <div class="goal-info">
+                                <h3>Покупка квартиры</h3>
+                                <p>Накопить на первый взнос</p>
+                            </div>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-info">
+                                <span class="current-amount">2,500,000</span>
+                                <span class="target-amount">из 5,000,000</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%"></div>
+                            </div>
+                            <div class="goal-stats">
+                                <span class="percentage">50%</span>
+                                <span class="remaining">Осталось 2,500,000</span>
+                            </div>
+                        </div>
+                        <div class="goal-actions">
+                            <button class="btn btn-sm btn-outline">Добавить</button>
+                            <button class="btn btn-sm btn-primary">Подробнее</button>
+                        </div>
+                    </div>
+
+                    <div class="goal-card">
+                        <div class="goal-header">
+                            <div class="goal-icon">
+                                <i class="fas fa-plane"></i>
+                            </div>
+                            <div class="goal-info">
+                                <h3>Путешествие в Европу</h3>
+                                <p>Летний отпуск</p>
+                            </div>
+                        </div>
+                        <div class="goal-progress">
+                            <div class="progress-info">
+                                <span class="current-amount">150,000</span>
+                                <span class="target-amount">из 300,000</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 50%"></div>
+                            </div>
+                            <div class="goal-stats">
+                                <span class="percentage">50%</span>
+                                <span class="remaining">Осталось 150,000</span>
+                            </div>
+                        </div>
+                        <div class="goal-actions">
+                            <button class="btn btn-sm btn-outline">Добавить</button>
+                            <button class="btn btn-sm btn-primary">Подробнее</button>
+                        </div>
+                    </div>
+
+                    <div class="goal-card add-goal">
+                        <div class="add-goal-content">
+                            <i class="fas fa-plus"></i>
+                            <h3>Добавить новую цель</h3>
+                            <p>Создайте финансовую цель и отслеживайте прогресс</p>
                         </div>
                     </div>
                 </div>
@@ -246,7 +491,7 @@
                 <h1 class="section-title">Аналитика</h1>
                 
                 <div class="analytics-grid">
-                    <div class="card">
+                    <div class="card chart-card">
                         <div class="card-header">
                             <h3>Тренды расходов</h3>
                             <div class="period-selector">
@@ -260,7 +505,7 @@
                         </div>
                     </div>
 
-                    <div class="card">
+                    <div class="card chart-card">
                         <div class="card-header">
                             <h3>Сравнение периодов</h3>
                         </div>
@@ -269,16 +514,7 @@
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Бюджет vs Факт</h3>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="budget-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="card">
+                    <div class="card chart-card">
                         <div class="card-header">
                             <h3>Прогноз расходов</h3>
                         </div>
@@ -286,67 +522,27 @@
                             <canvas id="forecast-chart"></canvas>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Reports Section -->
-        <section id="reports" class="section">
-            <div class="container">
-                <h1 class="section-title">Отчеты</h1>
-                
-                <div class="reports-grid">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Финансовый обзор</h3>
-                            <div class="period-selector">
-                                <button class="btn btn-sm" data-period="month">Месяц</button>
-                                <button class="btn btn-sm active" data-period="quarter">Квартал</button>
-                                <button class="btn btn-sm" data-period="year">Год</button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <canvas id="financial-chart"></canvas>
-                        </div>
-                    </div>
 
                     <div class="card">
                         <div class="card-header">
-                            <h3>Топ категорий</h3>
+                            <h3>AI Анализ</h3>
                         </div>
                         <div class="card-body">
-                            <div id="top-categories">
-                                <!-- Categories chart will be here -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Advanced Reports -->
-                <div class="advanced-reports">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>Детальные отчеты</h3>
-                            <div class="report-actions">
-                                <button class="btn btn-outline" id="export-pdf">
-                                    <i class="fas fa-file-pdf"></i>
-                                    PDF
-                                </button>
-                                <button class="btn btn-outline" id="export-excel">
-                                    <i class="fas fa-file-excel"></i>
-                                    Excel
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="report-tabs">
-                                <button class="tab-btn active" data-tab="summary">Сводка</button>
-                                <button class="tab-btn" data-tab="categories">По категориям</button>
-                                <button class="tab-btn" data-tab="timeline">По времени</button>
-                                <button class="tab-btn" data-tab="comparison">Сравнение</button>
-                            </div>
-                            <div id="report-content">
-                                <!-- Report content will be loaded here -->
+                            <div id="ai-analytics">
+                                <div class="ai-insight">
+                                    <i class="fas fa-lightbulb"></i>
+                                    <div class="insight-content">
+                                        <h4>Оптимизация расходов</h4>
+                                        <p>Ваши расходы на транспорт на 20% выше среднего. Рассмотрите использование общественного транспорта.</p>
+                                    </div>
+                                </div>
+                                <div class="ai-insight">
+                                    <i class="fas fa-chart-line"></i>
+                                    <div class="insight-content">
+                                        <h4>Положительный тренд</h4>
+                                        <p>Ваши сбережения растут на 15% в месяц. Отличная финансовая дисциплина!</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -354,51 +550,48 @@
             </div>
         </section>
 
-        <!-- AI Insights Section -->
-        <section id="ai-insights" class="section">
+        <!-- AI Chat Section -->
+        <section id="ai-chat" class="section">
             <div class="container">
-                <h1 class="section-title">AI Анализ</h1>
-                
-                <div class="ai-insights-grid">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-robot"></i> Умные рекомендации</h3>
+                <div class="ai-chat-container">
+                    <div class="chat-header">
+                        <div class="ai-avatar">
+                            <i class="fas fa-robot"></i>
                         </div>
-                        <div class="card-body">
-                            <div id="ai-recommendations">
-                                <!-- AI recommendations will be loaded here -->
+                        <div class="chat-info">
+                            <h3>AI Финансовый ассистент</h3>
+                            <p>Задайте любой вопрос о ваших финансах</p>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message ai-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Привет! Я ваш AI финансовый ассистент. Могу помочь с анализом расходов, планированием бюджета и финансовыми советами. Что вас интересует?</p>
                             </div>
                         </div>
                     </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-chart-line"></i> Прогнозы</h3>
+                    
+                    <div class="chat-input">
+                        <div class="input-container">
+                            <input type="text" id="chat-input" placeholder="Задайте вопрос...">
+                            <button class="btn btn-primary" id="send-message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
                         </div>
-                        <div class="card-body">
-                            <canvas id="ai-forecast-chart"></canvas>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-lightbulb"></i> Анализ паттернов</h3>
-                        </div>
-                        <div class="card-body">
-                            <div id="pattern-analysis">
-                                <!-- Pattern analysis will be loaded here -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3><i class="fas fa-bullseye"></i> Цели и достижения</h3>
-                        </div>
-                        <div class="card-body">
-                            <div id="goals-progress">
-                                <!-- Goals progress will be loaded here -->
-                            </div>
+                        <div class="quick-questions">
+                            <button class="quick-question" data-question="На что я потратил больше всего в этом месяце?">
+                                На что я потратил больше всего в этом месяце?
+                            </button>
+                            <button class="quick-question" data-question="Как оптимизировать мои расходы?">
+                                Как оптимизировать мои расходы?
+                            </button>
+                            <button class="quick-question" data-question="Смогу ли я достичь своих финансовых целей?">
+                                Смогу ли я достичь своих финансовых целей?
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -419,17 +612,18 @@
                             <div class="setting-item">
                                 <label>Валюта</label>
                                 <select id="currency" class="select">
-                                    <option value="UZS">UZS (сум)</option>
+                                    <option value="RUB">RUB (рубль)</option>
                                     <option value="USD">USD (доллар)</option>
                                     <option value="EUR">EUR (евро)</option>
+                                    <option value="UZS">UZS (сум)</option>
                                 </select>
                             </div>
                             <div class="setting-item">
                                 <label>Язык</label>
                                 <select id="language" class="select">
                                     <option value="ru">Русский</option>
-                                    <option value="uz">O'zbekcha</option>
                                     <option value="en">English</option>
+                                    <option value="uz">O'zbekcha</option>
                                 </select>
                             </div>
                             <div class="setting-item">
@@ -445,40 +639,20 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <h3>Telegram интеграция</h3>
+                            <h3>Уведомления</h3>
                         </div>
                         <div class="card-body">
                             <div class="setting-item">
-                                <label>Статус подключения</label>
-                                <span class="connection-status" id="telegram-status">Отключено</span>
+                                <label>Push уведомления</label>
+                                <input type="checkbox" id="push-notifications" class="checkbox" checked>
                             </div>
                             <div class="setting-item">
-                                <label>Автосинхронизация</label>
-                                <input type="checkbox" id="auto-sync" class="checkbox">
-                            </div>
-                            <button class="btn btn-outline" id="connect-telegram">
-                                <i class="fab fa-telegram"></i>
-                                Подключить бота
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card">
-                        <div class="card-header">
-                            <h3>AI настройки</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="setting-item">
-                                <label>AI анализ</label>
-                                <input type="checkbox" id="ai-analysis" class="checkbox" checked>
+                                <label>Напоминания о бюджете</label>
+                                <input type="checkbox" id="budget-reminders" class="checkbox" checked>
                             </div>
                             <div class="setting-item">
-                                <label>Автоматические рекомендации</label>
+                                <label>AI рекомендации</label>
                                 <input type="checkbox" id="ai-recommendations" class="checkbox" checked>
-                            </div>
-                            <div class="setting-item">
-                                <label>Прогнозирование</label>
-                                <input type="checkbox" id="ai-forecast" class="checkbox" checked>
                             </div>
                         </div>
                     </div>
@@ -497,58 +671,156 @@
                             </button>
                         </div>
                     </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Экспорт данных</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="export-actions">
+                                <button class="btn btn-outline" id="export-csv">
+                                    <i class="fas fa-file-csv"></i>
+                                    Экспорт CSV
+                                </button>
+                                <button class="btn btn-outline" id="export-pdf">
+                                    <i class="fas fa-file-pdf"></i>
+                                    Экспорт PDF
+                                </button>
+                                <button class="btn btn-outline" id="backup-data">
+                                    <i class="fas fa-download"></i>
+                                    Резервная копия
+                                </button>
+                                <button class="btn btn-outline btn-danger" id="reset-data">
+                                    <i class="fas fa-trash"></i>
+                                    Сбросить данные
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 
-    <!-- Modals -->
-    <div id="transaction-modal" class="modal">
+    <!-- Quick Add Modal -->
+    <div id="quick-add-modal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 id="modal-title">Добавить транзакцию</h3>
-                <button class="modal-close" id="close-modal">
+                <h3>Быстрое добавление</h3>
+                <button class="modal-close" id="close-quick-modal">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="transaction-form">
-                    <div class="form-group">
-                        <label for="transaction-date">Дата</label>
-                        <input type="date" id="transaction-date" class="input" required>
+                <form id="quick-add-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quick-amount">Сумма</label>
+                            <input type="number" id="quick-amount" name="quick-amount" class="input" placeholder="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-currency">Валюта</label>
+                            <select id="quick-currency" name="quick-currency" class="select" required>
+                                <option value="UZS">UZS (сум)</option>
+                                <option value="USD">USD (доллар)</option>
+                                <option value="EUR">EUR (евро)</option>
+                                <option value="RUB">RUB (рубль)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row" id="conversion-display" style="display: none;">
+                        <div class="form-group">
+                            <label>Конвертация в UZS</label>
+                            <div class="conversion-result" id="conversion-result">
+                                <span class="converted-amount">0</span> UZS
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quick-type">Тип</label>
+                            <select id="quick-type" name="quick-type" class="select" required>
+                                <option value="expense">Расход</option>
+                                <option value="income">Доход</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-date">Дата</label>
+                            <input type="date" id="quick-date" name="quick-date" class="input" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="quick-category">Категория</label>
+                            <select id="quick-category" name="quick-category" class="select" required>
+                                <option value="">Выберите категорию</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="quick-source">Источник</label>
+                            <select id="quick-source" name="quick-source" class="select" required>
+                                <option value="card">Карта</option>
+                                <option value="cash">Наличные</option>
+                                <option value="bank">Банк</option>
+                                <option value="other">Другое</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="transaction-description">Описание</label>
-                        <input type="text" id="transaction-description" class="input" placeholder="Введите описание" required>
+                        <label for="quick-description">Описание</label>
+                        <input type="text" id="quick-description" name="quick-description" class="input" placeholder="Краткое описание транзакции">
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-secondary" id="cancel-quick-add">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Добавить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Goal Modal -->
+    <div id="goal-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Создать финансовую цель</h3>
+                <button class="modal-close" id="close-goal-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="goal-form">
+                    <div class="form-group">
+                        <label for="goal-name">Название цели</label>
+                        <input type="text" id="goal-name" class="input" placeholder="Например: Покупка квартиры" required>
                     </div>
                     <div class="form-group">
-                        <label for="transaction-category">Категория</label>
-                        <select id="transaction-category" class="select" required>
-                            <option value="">Выберите категорию</option>
-                        </select>
+                        <label for="goal-description">Описание</label>
+                        <textarea id="goal-description" class="input" placeholder="Краткое описание цели"></textarea>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="goal-target">Целевая сумма</label>
+                            <input type="number" id="goal-target" class="input" placeholder="0" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="goal-deadline">Срок достижения</label>
+                            <input type="date" id="goal-deadline" class="input" required>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="transaction-amount">Сумма</label>
-                        <input type="number" id="transaction-amount" class="input" placeholder="0" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="transaction-type">Тип</label>
-                        <select id="transaction-type" class="select" required>
-                            <option value="income">Доход</option>
-                            <option value="expense">Расход</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="transaction-source">Источник</label>
-                        <select id="transaction-source" class="select">
-                            <option value="manual">Ручной ввод</option>
-                            <option value="telegram">Telegram бот</option>
-                            <option value="import">Импорт</option>
+                        <label for="goal-icon">Иконка</label>
+                        <select id="goal-icon" class="select">
+                            <option value="home">🏠 Дом</option>
+                            <option value="car">🚗 Автомобиль</option>
+                            <option value="plane">✈️ Путешествие</option>
+                            <option value="graduation">🎓 Образование</option>
+                            <option value="gift">🎁 Подарок</option>
                         </select>
                     </div>
                     <div class="form-actions">
-                        <button type="button" class="btn btn-secondary" id="cancel-transaction">Отмена</button>
-                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-goal">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Создать цель</button>
                     </div>
                 </form>
             </div>
@@ -557,7 +829,8 @@
 
     <script src="js/app.js"></script>
     <script src="js/transactions.js"></script>
-    <script src="js/reports.js"></script>
+    <script src="js/budget.js"></script>
+    <script src="js/goals.js"></script>
     <script src="js/analytics.js"></script>
     <script src="js/ai-insights.js"></script>
     <script src="js/utils.js"></script>

@@ -390,7 +390,18 @@ class Utils {
         return new Intl.NumberFormat(locale).format(number);
     }
 
-    static formatCurrency(amount, currency = 'UZS', locale = 'ru-RU') {
+    static formatCurrency(amount, currency = null, locale = null) {
+        // Get currency and language from localStorage if not provided
+        if (!currency) {
+            currency = localStorage.getItem('currency') || 'RUB';
+        }
+        if (!locale) {
+            const language = localStorage.getItem('language') || 'ru';
+            if (language === 'en') locale = 'en-US';
+            else if (language === 'uz') locale = 'uz-UZ';
+            else locale = 'ru-RU';
+        }
+        
         return new Intl.NumberFormat(locale, {
             style: 'currency',
             currency: currency,

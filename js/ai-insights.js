@@ -8,6 +8,17 @@ class AIInsightsManager {
         this.init();
     }
 
+    getCurrencyFormat() {
+        const currency = localStorage.getItem('currency') || 'RUB';
+        const language = localStorage.getItem('language') || 'ru';
+        
+        let locale = 'ru-RU';
+        if (language === 'en') locale = 'en-US';
+        else if (language === 'uz') locale = 'uz-UZ';
+        
+        return { locale, currency };
+    }
+
     init() {
         this.loadAIInsights();
         this.setupAIEventListeners();
@@ -469,12 +480,13 @@ class AIInsightsManager {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return new Intl.NumberFormat('ru-RU', {
+                                const { locale, currency } = this.getCurrencyFormat();
+                                return new Intl.NumberFormat(locale, {
                                     style: 'currency',
-                                    currency: 'UZS',
+                                    currency: currency,
                                     minimumFractionDigits: 0
                                 }).format(value);
-                            }
+                            }.bind(this)
                         }
                     }
                 }

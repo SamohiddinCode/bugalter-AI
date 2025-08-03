@@ -8,7 +8,7 @@ const { sendVerificationCode, sendResendCode } = require('./notifications');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
@@ -119,15 +119,23 @@ app.post('/api/auth/register', async (req, res) => {
         const { 
             firstName, 
             lastName, 
+            first_name,
+            last_name,
             email, 
             phone, 
             accountType, 
+            account_type,
             role, 
             companyName 
         } = req.body;
 
+        // Use either firstName/lastName or first_name/last_name
+        const finalFirstName = firstName || first_name;
+        const finalLastName = lastName || last_name;
+        const finalAccountType = accountType || account_type;
+
         // Validate required fields
-        if (!firstName || !lastName || !email || !phone) {
+        if (!finalFirstName || !finalLastName || !email || !phone) {
             return res.status(400).json({ 
                 error: 'Все обязательные поля должны быть заполнены' 
             });
@@ -157,7 +165,7 @@ app.post('/api/auth/register', async (req, res) => {
                 account_type, role, company_name, 
                 verification_code, code_expiry, is_verified
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [userId, firstName, lastName, email, phone, accountType, role, companyName, verificationCode, codeExpiry, 0],
+            [userId, finalFirstName, finalLastName, email, phone, finalAccountType, role, companyName, verificationCode, codeExpiry, 0],
             async function(err) {
                 if (err) {
                     console.error('Insert error:', err);
@@ -167,7 +175,7 @@ app.post('/api/auth/register', async (req, res) => {
                 // Send verification code via email and Telegram
                 const notificationResults = await sendVerificationCode(
                     email, 
-                    firstName, 
+                    finalFirstName, 
                     verificationCode,
                     process.env.TELEGRAM_CHAT_ID
                 );

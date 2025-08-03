@@ -7,6 +7,17 @@ class AnalyticsManager {
         this.init();
     }
 
+    getCurrencyFormat() {
+        const currency = localStorage.getItem('currency') || 'RUB';
+        const language = localStorage.getItem('language') || 'ru';
+        
+        let locale = 'ru-RU';
+        if (language === 'en') locale = 'en-US';
+        else if (language === 'uz') locale = 'uz-UZ';
+        
+        return { locale, currency };
+    }
+
     init() {
         this.setupChartPeriods();
         this.loadAnalyticsData();
@@ -97,12 +108,13 @@ class AnalyticsManager {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return new Intl.NumberFormat('ru-RU', {
+                                const { locale, currency } = this.getCurrencyFormat();
+                                return new Intl.NumberFormat(locale, {
                                     style: 'currency',
-                                    currency: 'UZS',
+                                    currency: currency,
                                     minimumFractionDigits: 0
                                 }).format(value);
-                            }
+                            }.bind(this)
                         }
                     }
                 }
@@ -145,12 +157,13 @@ class AnalyticsManager {
                                 const value = context.parsed;
                                 const total = context.dataset.data.reduce((a, b) => a + b, 0);
                                 const percentage = ((value / total) * 100).toFixed(1);
-                                return `${label}: ${new Intl.NumberFormat('ru-RU', {
+                                const { locale, currency } = this.getCurrencyFormat();
+                                return `${label}: ${new Intl.NumberFormat(locale, {
                                     style: 'currency',
-                                    currency: 'UZS',
+                                    currency: currency,
                                     minimumFractionDigits: 0
                                 }).format(value)} (${percentage}%)`;
-                            }
+                            }.bind(this)
                         }
                     }
                 }
@@ -258,12 +271,13 @@ class AnalyticsManager {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return new Intl.NumberFormat('ru-RU', {
+                                const { locale, currency } = this.getCurrencyFormat();
+                                return new Intl.NumberFormat(locale, {
                                     style: 'currency',
-                                    currency: 'UZS',
+                                    currency: currency,
                                     minimumFractionDigits: 0
                                 }).format(value);
-                            }
+                            }.bind(this)
                         }
                     }
                 }
@@ -311,12 +325,13 @@ class AnalyticsManager {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return new Intl.NumberFormat('ru-RU', {
+                                const { locale, currency } = this.getCurrencyFormat();
+                                return new Intl.NumberFormat(locale, {
                                     style: 'currency',
-                                    currency: 'UZS',
+                                    currency: currency,
                                     minimumFractionDigits: 0
                                 }).format(value);
-                            }
+                            }.bind(this)
                         }
                     }
                 }
@@ -371,12 +386,13 @@ class AnalyticsManager {
                         beginAtZero: true,
                         ticks: {
                             callback: function(value) {
-                                return new Intl.NumberFormat('ru-RU', {
+                                const { locale, currency } = this.getCurrencyFormat();
+                                return new Intl.NumberFormat(locale, {
                                     style: 'currency',
-                                    currency: 'UZS',
+                                    currency: currency,
                                     minimumFractionDigits: 0
                                 }).format(value);
-                            }
+                            }.bind(this)
                         }
                     }
                 }
