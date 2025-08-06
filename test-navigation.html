@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест навигации</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .nav-link {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 5px;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .nav-link.active {
+            background: #007bff;
+            color: white;
+        }
+        .section {
+            display: none;
+            padding: 20px;
+            border: 1px solid #eee;
+            margin: 10px 0;
+        }
+        .section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест навигации</h1>
+    
+    <div class="test-section">
+        <h2>Навигация</h2>
+        <a href="#dashboard" class="nav-link">Дашборд</a>
+        <a href="#transactions" class="nav-link">Транзакции</a>
+        <a href="#budget" class="nav-link">Бюджет</a>
+        <a href="#settings" class="nav-link">Настройки</a>
+    </div>
+    
+    <div class="test-section">
+        <h2>Разделы</h2>
+        <div id="dashboard" class="section active">
+            <h3>Дашборд</h3>
+            <p>Содержимое дашборда</p>
+        </div>
+        
+        <div id="transactions" class="section">
+            <h3>Транзакции</h3>
+            <p>Содержимое транзакций</p>
+            <div id="transactions-list">
+                <p>Список транзакций будет здесь</p>
+            </div>
+        </div>
+        
+        <div id="budget" class="section">
+            <h3>Бюджет</h3>
+            <p>Содержимое бюджета</p>
+        </div>
+        
+        <div id="settings" class="section">
+            <h3>Настройки</h3>
+            <p>Содержимое настроек</p>
+        </div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Тестовые действия</h2>
+        <button class="btn" onclick="addTestTransaction()">Добавить тестовую транзакцию</button>
+        <button class="btn" onclick="checkLocalStorage()">Проверить localStorage</button>
+        <button class="btn" onclick="forceRenderTransactions()">Принудительно отобразить транзакции</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Отладочная информация</h2>
+        <div id="debug-info"></div>
+    </div>
+
+    <script>
+        // Простая навигация
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = e.target.getAttribute('href').substring(1);
+                switchSection(target);
+            });
+        });
+        
+        function switchSection(sectionId) {
+            console.log(`Переключение на раздел: ${sectionId}`);
+            
+            // Скрываем все разделы
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Показываем целевой раздел
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+                console.log(`Раздел ${sectionId} активирован`);
+            } else {
+                console.error(`Раздел ${sectionId} не найден!`);
+            }
+            
+            // Обновляем навигацию
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            const activeLink = document.querySelector(`[href="#${sectionId}"]`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+                console.log(`Навигационная ссылка ${sectionId} активирована`);
+            } else {
+                console.error(`Навигационная ссылка ${sectionId} не найдена!`);
+            }
+            
+            // Если это транзакции, загружаем данные
+            if (sectionId === 'transactions') {
+                console.log('Загружаем данные транзакций...');
+                loadTransactionsData();
+            }
+        }
+        
+        function loadTransactionsData() {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const transactionsList = document.getElementById('transactions-list');
+            
+            console.log(`Найдено ${transactions.length} транзакций`);
+            
+            if (transactions.length === 0) {
+                transactionsList.innerHTML = '<p>Нет транзакций</p>';
+            } else {
+                transactionsList.innerHTML = transactions.map(t => `
+                    <div style="padding: 10px; margin: 5px 0; border: 1px solid #eee; background: #f9f9f9;">
+                        <strong>${t.description}</strong><br>
+                        Категория: ${t.category}<br>
+                        Сумма: ${t.type === 'income' ? '+' : '-'}${Math.abs(t.amount)}<br>
+                        Дата: ${t.date}
+                    </div>
+                `).join('');
+            }
+        }
+        
+        function addTestTransaction() {
+            const transaction = {
+                id: Date.now(),
+                amount: 10000,
+                type: 'income',
+                category: 'salary',
+                description: 'Тестовая транзакция',
+                date: new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
+            };
+            
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            console.log('Тестовая транзакция добавлена');
+            updateDebugInfo();
+        }
+        
+        function checkLocalStorage() {
+            const transactions = localStorage.getItem('transactions');
+            console.log('localStorage transactions:', transactions);
+            updateDebugInfo();
+        }
+        
+        function forceRenderTransactions() {
+            loadTransactionsData();
+        }
+        
+        function updateDebugInfo() {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const debugInfo = document.getElementById('debug-info');
+            debugInfo.innerHTML = `
+                <p><strong>Количество транзакций:</strong> ${transactions.length}</p>
+                <p><strong>localStorage данные:</strong> ${localStorage.getItem('transactions') || 'Нет данных'}</p>
+                <p><strong>Текущий раздел:</strong> ${document.querySelector('.section.active')?.id || 'Не определен'}</p>
+            `;
+        }
+        
+        // Инициализация
+        updateDebugInfo();
+    </script>
+</body>
+</html> 

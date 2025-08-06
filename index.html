@@ -63,7 +63,7 @@
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-value" id="current-balance">0</h3>
-                            <p class="stat-label">Текущий баланс</p>
+                            <p class="stat-label">Общий баланс</p>
                             <span class="stat-change positive">+12.5%</span>
                         </div>
                     </div>
@@ -74,7 +74,7 @@
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-value" id="total-income">0</h3>
-                            <p class="stat-label">Доходы</p>
+                            <p class="stat-label">Доходы (период)</p>
                             <span class="stat-change positive">+8.3%</span>
                         </div>
                     </div>
@@ -85,7 +85,7 @@
                         </div>
                         <div class="stat-content">
                             <h3 class="stat-value" id="total-expense">0</h3>
-                            <p class="stat-label">Расходы</p>
+                            <p class="stat-label">Расходы (период)</p>
                             <span class="stat-change negative">-5.2%</span>
                         </div>
                     </div>
@@ -316,6 +316,127 @@
                     </div>
                 </div>
 
+                <!-- Advanced Filters and Analytics -->
+                <div class="transactions-analytics">
+                    <div class="analytics-cards">
+                        <div class="analytics-card">
+                            <div class="analytics-icon income">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="analytics-content">
+                                <h4>Общий доход</h4>
+                                <div class="analytics-amount" id="total-income">0</div>
+                                <div class="analytics-period">За выбранный период</div>
+                            </div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-icon expense">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="analytics-content">
+                                <h4>Общий расход</h4>
+                                <div class="analytics-amount" id="total-expense">0</div>
+                                <div class="analytics-period">За выбранный период</div>
+                            </div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-icon balance">
+                                <i class="fas fa-balance-scale"></i>
+                            </div>
+                            <div class="analytics-content">
+                                <h4>Баланс</h4>
+                                <div class="analytics-amount" id="total-balance">0</div>
+                                <div class="analytics-period">Доходы - Расходы</div>
+                            </div>
+                        </div>
+                        <div class="analytics-card">
+                            <div class="analytics-icon count">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div class="analytics-content">
+                                <h4>Количество</h4>
+                                <div class="analytics-amount" id="transactions-count">0</div>
+                                <div class="analytics-period">Всего транзакций</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Advanced Filters -->
+                <div class="advanced-filters">
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>Период:</label>
+                            <select id="date-range-filter" class="select">
+                                <option value="all">Все время</option>
+                                <option value="today">Сегодня</option>
+                                <option value="week">Неделя</option>
+                                <option value="month" selected>Месяц</option>
+                                <option value="quarter">Квартал</option>
+                                <option value="year">Год</option>
+                                <option value="custom">Произвольный</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Категория:</label>
+                            <select id="category-filter" class="select">
+                                <option value="">Все категории</option>
+                                <option value="food">Продукты</option>
+                                <option value="transport">Транспорт</option>
+                                <option value="entertainment">Развлечения</option>
+                                <option value="shopping">Покупки</option>
+                                <option value="health">Здоровье</option>
+                                <option value="education">Образование</option>
+                                <option value="income">Доходы</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Сумма:</label>
+                            <select id="amount-filter" class="select">
+                                <option value="">Любая сумма</option>
+                                <option value="0-1000">До 1,000</option>
+                                <option value="1000-5000">1,000 - 5,000</option>
+                                <option value="5000-10000">5,000 - 10,000</option>
+                                <option value="10000+">Более 10,000</option>
+                            </select>
+                        </div>
+                        <div class="filter-group">
+                            <label>Сортировка:</label>
+                            <select id="sort-filter" class="select">
+                                <option value="date-desc">Дата (новые)</option>
+                                <option value="date-asc">Дата (старые)</option>
+                                <option value="amount-desc">Сумма (большие)</option>
+                                <option value="amount-asc">Сумма (малые)</option>
+                                <option value="category">По категории</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="filter-row">
+                        <div class="filter-group">
+                            <label>Дата от:</label>
+                            <input type="date" id="date-from" class="input">
+                        </div>
+                        <div class="filter-group">
+                            <label>Дата до:</label>
+                            <input type="date" id="date-to" class="input">
+                        </div>
+                        <div class="filter-group">
+                            <label>Поиск:</label>
+                            <input type="text" id="search-transactions" placeholder="Поиск по описанию..." class="input">
+                        </div>
+                        <div class="filter-actions">
+                            <button class="btn btn-outline" id="apply-filters">
+                                <i class="fas fa-filter"></i>
+                                Применить
+                            </button>
+                            <button class="btn btn-text" id="clear-filters">
+                                <i class="fas fa-times"></i>
+                                Очистить
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Quick Filters -->
                 <div class="quick-filters">
                     <div class="filter-chips">
@@ -325,16 +446,75 @@
                         <button class="chip" data-filter="food">Продукты</button>
                         <button class="chip" data-filter="transport">Транспорт</button>
                         <button class="chip" data-filter="entertainment">Развлечения</button>
+                        <button class="chip" data-filter="shopping">Покупки</button>
+                        <button class="chip" data-filter="health">Здоровье</button>
                     </div>
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" id="search-transactions" placeholder="Поиск транзакций...">
+                </div>
+
+                <!-- Transactions Management -->
+                <div class="transactions-management">
+                    <div class="management-actions">
+                        <button class="btn btn-outline" id="bulk-edit">
+                            <i class="fas fa-edit"></i>
+                            Массовое редактирование
+                        </button>
+                        <button class="btn btn-outline" id="bulk-delete">
+                            <i class="fas fa-trash"></i>
+                            Массовое удаление
+                        </button>
+                        <button class="btn btn-outline" id="duplicate-transaction">
+                            <i class="fas fa-copy"></i>
+                            Дублировать
+                        </button>
+                        <button class="btn btn-outline" id="export-selected">
+                            <i class="fas fa-download"></i>
+                            Экспорт выбранных
+                        </button>
+                    </div>
+                    <div class="selection-info" id="selection-info" style="display: none;">
+                        <span id="selected-count">0</span> транзакций выбрано
+                        <button class="btn btn-text" id="select-all">Выбрать все</button>
+                        <button class="btn btn-text" id="deselect-all">Снять выбор</button>
                     </div>
                 </div>
 
                 <!-- Transactions List -->
                 <div class="transactions-list" id="transactions-list">
                     <!-- Transactions will be loaded here -->
+                </div>
+
+                <!-- Transaction Actions Modal -->
+                <div class="modal" id="transaction-actions-modal">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3>Действия с транзакцией</h3>
+                            <button class="modal-close" id="close-transaction-modal">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="transaction-details" id="transaction-details">
+                                <!-- Transaction details will be shown here -->
+                            </div>
+                            <div class="action-buttons">
+                                <button class="btn btn-outline" id="edit-transaction">
+                                    <i class="fas fa-edit"></i>
+                                    Редактировать
+                                </button>
+                                <button class="btn btn-outline" id="duplicate-transaction-action">
+                                    <i class="fas fa-copy"></i>
+                                    Дублировать
+                                </button>
+                                <button class="btn btn-danger" id="delete-transaction">
+                                    <i class="fas fa-trash"></i>
+                                    Удалить
+                                </button>
+                                <button class="btn btn-text" id="cancel-transaction-action">
+                                    Отмена
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -601,25 +781,35 @@
         <!-- Settings Section -->
         <section id="settings" class="section">
             <div class="container">
-                <h1 class="section-title">Настройки</h1>
+                <div class="section-header">
+                    <h1 class="section-title">Настройки</h1>
+                    <p class="section-subtitle">Настройте приложение под свои предпочтения</p>
+                </div>
                 
                 <div class="settings-grid">
+                    <!-- Общие настройки -->
                     <div class="card">
                         <div class="card-header">
-                            <h3>Общие настройки</h3>
+                            <h3><i class="fas fa-cog"></i> Общие настройки</h3>
                         </div>
                         <div class="card-body">
                             <div class="setting-item">
-                                <label>Валюта</label>
+                                <label for="currency">
+                                    <i class="fas fa-coins"></i>
+                                    Валюта по умолчанию
+                                </label>
                                 <select id="currency" class="select">
-                                    <option value="RUB">RUB (рубль)</option>
+                                    <option value="UZS">UZS (сум)</option>
                                     <option value="USD">USD (доллар)</option>
                                     <option value="EUR">EUR (евро)</option>
-                                    <option value="UZS">UZS (сум)</option>
+                                    <option value="RUB">RUB (рубль)</option>
                                 </select>
                             </div>
                             <div class="setting-item">
-                                <label>Язык</label>
+                                <label for="language">
+                                    <i class="fas fa-globe"></i>
+                                    Язык интерфейса
+                                </label>
                                 <select id="language" class="select">
                                     <option value="ru">Русский</option>
                                     <option value="en">English</option>
@@ -627,42 +817,74 @@
                                 </select>
                             </div>
                             <div class="setting-item">
-                                <label>Тема</label>
+                                <label for="theme">
+                                    <i class="fas fa-palette"></i>
+                                    Тема оформления
+                                </label>
                                 <select id="theme" class="select">
                                     <option value="light">Светлая</option>
                                     <option value="dark">Темная</option>
                                     <option value="auto">Авто</option>
                                 </select>
                             </div>
+                            <div class="setting-item">
+                                <label for="date-format">
+                                    <i class="fas fa-calendar"></i>
+                                    Формат даты
+                                </label>
+                                <select id="date-format" class="select">
+                                    <option value="DD.MM.YYYY">DD.MM.YYYY</option>
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Уведомления -->
                     <div class="card">
                         <div class="card-header">
-                            <h3>Уведомления</h3>
+                            <h3><i class="fas fa-bell"></i> Уведомления</h3>
                         </div>
                         <div class="card-body">
                             <div class="setting-item">
-                                <label>Push уведомления</label>
+                                <label for="push-notifications">
+                                    <i class="fas fa-bell"></i>
+                                    Push уведомления
+                                </label>
                                 <input type="checkbox" id="push-notifications" class="checkbox" checked>
                             </div>
                             <div class="setting-item">
-                                <label>Напоминания о бюджете</label>
+                                <label for="budget-reminders">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    Напоминания о бюджете
+                                </label>
                                 <input type="checkbox" id="budget-reminders" class="checkbox" checked>
                             </div>
                             <div class="setting-item">
-                                <label>AI рекомендации</label>
+                                <label for="ai-recommendations">
+                                    <i class="fas fa-robot"></i>
+                                    AI рекомендации
+                                </label>
                                 <input type="checkbox" id="ai-recommendations" class="checkbox" checked>
+                            </div>
+                            <div class="setting-item">
+                                <label for="weekly-reports">
+                                    <i class="fas fa-chart-line"></i>
+                                    Еженедельные отчеты
+                                </label>
+                                <input type="checkbox" id="weekly-reports" class="checkbox">
                             </div>
                         </div>
                     </div>
 
+                    <!-- Категории -->
                     <div class="card">
                         <div class="card-header">
-                            <h3>Категории</h3>
+                            <h3><i class="fas fa-tags"></i> Категории</h3>
                         </div>
                         <div class="card-body">
-                            <div id="categories-list">
+                            <div id="categories-list" class="categories-list">
                                 <!-- Categories will be loaded here -->
                             </div>
                             <button class="btn btn-outline" id="add-category">
@@ -672,9 +894,10 @@
                         </div>
                     </div>
 
+                    <!-- Экспорт данных -->
                     <div class="card">
                         <div class="card-header">
-                            <h3>Экспорт данных</h3>
+                            <h3><i class="fas fa-download"></i> Экспорт данных</h3>
                         </div>
                         <div class="card-body">
                             <div class="export-actions">
@@ -693,6 +916,72 @@
                                 <button class="btn btn-outline btn-danger" id="reset-data">
                                     <i class="fas fa-trash"></i>
                                     Сбросить данные
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Безопасность -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-shield-alt"></i> Безопасность</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <label for="auto-lock">
+                                    <i class="fas fa-lock"></i>
+                                    Автоблокировка
+                                </label>
+                                <select id="auto-lock" class="select">
+                                    <option value="never">Никогда</option>
+                                    <option value="1min">1 минута</option>
+                                    <option value="5min">5 минут</option>
+                                    <option value="15min">15 минут</option>
+                                </select>
+                            </div>
+                            <div class="setting-item">
+                                <label for="biometric-auth">
+                                    <i class="fas fa-fingerprint"></i>
+                                    Биометрическая аутентификация
+                                </label>
+                                <input type="checkbox" id="biometric-auth" class="checkbox">
+                            </div>
+                            <div class="setting-item">
+                                <label for="data-encryption">
+                                    <i class="fas fa-key"></i>
+                                    Шифрование данных
+                                </label>
+                                <input type="checkbox" id="data-encryption" class="checkbox" checked>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- О приложении -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-info-circle"></i> О приложении</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <label>Версия</label>
+                                <span class="version-info">1.0.0</span>
+                            </div>
+                            <div class="setting-item">
+                                <label>Последнее обновление</label>
+                                <span class="update-info">05.08.2025</span>
+                            </div>
+                            <div class="setting-item">
+                                <label>Размер данных</label>
+                                <span class="data-size">2.4 MB</span>
+                            </div>
+                            <div class="export-actions">
+                                <button class="btn btn-outline" id="check-updates">
+                                    <i class="fas fa-sync"></i>
+                                    Проверить обновления
+                                </button>
+                                <button class="btn btn-outline" id="help-support">
+                                    <i class="fas fa-question-circle"></i>
+                                    Помощь и поддержка
                                 </button>
                             </div>
                         </div>

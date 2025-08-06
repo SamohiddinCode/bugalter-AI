@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Простой тест транзакций</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            background: #007bff;
+            color: white;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .transaction-item {
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            background: #f9f9f9;
+        }
+        .income { color: green; }
+        .expense { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Простой тест транзакций</h1>
+    
+    <div class="test-section">
+        <h2>Добавить тестовую транзакцию</h2>
+        <button class="btn" onclick="addTestTransaction()">Добавить тестовую транзакцию</button>
+        <button class="btn" onclick="clearTransactions()">Очистить все транзакции</button>
+        <button class="btn" onclick="showTransactions()">Показать транзакции</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Текущие транзакции</h2>
+        <div id="transactions-display"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>localStorage данные</h2>
+        <pre id="localstorage-data"></pre>
+    </div>
+    
+    <div class="test-section">
+        <h2>Перейти к основному приложению</h2>
+        <a href="/index.html#transactions" class="btn">Открыть раздел транзакций</a>
+    </div>
+
+    <script>
+        function addTestTransaction() {
+            const transaction = {
+                id: Date.now(),
+                amount: 10000,
+                type: 'income',
+                category: 'salary',
+                description: 'Тестовая транзакция',
+                date: new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
+            };
+            
+            // Сохраняем в localStorage
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            alert('Тестовая транзакция добавлена!');
+            showTransactions();
+            showLocalStorageData();
+        }
+        
+        function clearTransactions() {
+            localStorage.removeItem('transactions');
+            alert('Все транзакции удалены!');
+            showTransactions();
+            showLocalStorageData();
+        }
+        
+        function showTransactions() {
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const display = document.getElementById('transactions-display');
+            
+            if (transactions.length === 0) {
+                display.innerHTML = '<p>Нет транзакций</p>';
+                return;
+            }
+            
+            display.innerHTML = transactions.map(t => `
+                <div class="transaction-item">
+                    <strong>${t.description}</strong><br>
+                    Категория: ${t.category}<br>
+                    Сумма: <span class="${t.type}">${t.type === 'income' ? '+' : '-'}${Math.abs(t.amount)}</span><br>
+                    Дата: ${t.date}<br>
+                    ID: ${t.id}
+                </div>
+            `).join('');
+        }
+        
+        function showLocalStorageData() {
+            const data = document.getElementById('localstorage-data');
+            const transactions = localStorage.getItem('transactions');
+            data.textContent = transactions || 'Нет данных';
+        }
+        
+        // Инициализация
+        showTransactions();
+        showLocalStorageData();
+    </script>
+</body>
+</html> 

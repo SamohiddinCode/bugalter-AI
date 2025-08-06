@@ -1,7 +1,7 @@
-// Transactions Management
 class TransactionManager {
     constructor(app) {
         this.app = app;
+        this.transactions = [];
         this.filteredTransactions = [];
         this.currentFilters = {
             search: '',
@@ -9,362 +9,344 @@ class TransactionManager {
             type: '',
             date: ''
         };
-        this.apiBaseUrl = 'http://localhost:3000/api';
-    }
-
-    // API Helper Methods
-    async apiRequest(endpoint, method = 'GET', data = null) {
-        const token = localStorage.getItem('userToken');
-        if (!token) {
-            throw new Error('Пользователь не авторизован');
-        }
-
-        const url = `${this.apiBaseUrl}${endpoint}`;
-        const options = {
-            method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        };
-        
-        if (data) {
-            options.body = JSON.stringify(data);
-        }
-        
-        try {
-            const response = await fetch(url, options);
-            const result = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(result.error || 'API Error');
-            }
-            
-            return result;
-        } catch (error) {
-            console.error('API Error:', error);
-            throw error;
-        }
-    }
-
-    async loadTransactions() {
-        try {
-            const params = new URLSearchParams();
-            if (this.currentFilters.type) params.append('type', this.currentFilters.type);
-            if (this.currentFilters.category) params.append('category', this.currentFilters.category);
-            if (this.currentFilters.date) params.append('startDate', this.currentFilters.date);
-            
-            const result = await this.apiRequest(`/transactions?${params.toString()}`);
-            return result.transactions || [];
-        } catch (error) {
-            console.error('Error loading transactions:', error);
-            this.showError('Ошибка при загрузке транзакций');
-            return [];
-        }
-    }
-
-    async createTransaction(transactionData) {
-        try {
-            const result = await this.apiRequest('/transactions', 'POST', transactionData);
-            this.showSuccess('Транзакция создана успешно');
-            return result.transactionId;
-        } catch (error) {
-            console.error('Error creating transaction:', error);
-            this.showError(error.message || 'Ошибка при создании транзакции');
-            throw error;
-        }
-    }
-
-    async updateTransaction(id, transactionData) {
-        try {
-            await this.apiRequest(`/transactions/${id}`, 'PUT', transactionData);
-            this.showSuccess('Транзакция обновлена успешно');
-        } catch (error) {
-            console.error('Error updating transaction:', error);
-            this.showError(error.message || 'Ошибка при обновлении транзакции');
-            throw error;
-        }
-    }
-
-    async deleteTransaction(id) {
-        try {
-            await this.apiRequest(`/transactions/${id}`, 'DELETE');
-            this.showSuccess('Транзакция удалена успешно');
-        } catch (error) {
-            console.error('Error deleting transaction:', error);
-            this.showError(error.message || 'Ошибка при удалении транзакции');
-            throw error;
-        }
-    }
-
-    async loadCategories() {
-        try {
-            const result = await this.apiRequest('/categories');
-            return result.categories || [];
-        } catch (error) {
-            console.error('Error loading categories:', error);
-            return [];
-        }
-    }
-
-    async loadStats() {
-        try {
-            const result = await this.apiRequest('/transactions/stats');
-            return result.stats || { income: 0, expense: 0, balance: 0 };
-        } catch (error) {
-            console.error('Error loading stats:', error);
-            return { income: 0, expense: 0, balance: 0 };
-        }
     }
 
     async renderTransactionsTable() {
-        const tbody = document.getElementById('transactions-tbody');
-        if (!tbody) return;
-
-        try {
-            const transactions = await this.loadTransactions();
-            this.filteredTransactions = this.filterTransactions(transactions);
-
-            // Сортировка по дате в обратном порядке (новые сначала)
-            this.filteredTransactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            if (this.filteredTransactions.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="empty-state">
-                            <i class="fas fa-receipt"></i>
-                            <h3>Нет транзакций</h3>
-                            <p>Добавьте первую транзакцию или измените фильтры</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            tbody.innerHTML = this.filteredTransactions.map(transaction => {
-                // Определяем примечание для транзакций в минусе
-                let note = '';
-                if (transaction.type === 'expense') {
-                    note = 'Транзакция в минусе по доходности';
-                }
-                
-                return `
-                <tr>
-                    <td>${new Date(transaction.date).toLocaleDateString('ru-RU')}</td>
-                    <td>${transaction.description || 'Без описания'}</td>
-                    <td>
-                        <span class="category-badge" style="background-color: ${this.getCategoryColor(transaction.category_id)}">
-                            ${this.getCategoryName(transaction.category_id)}
-                        </span>
-                    </td>
-                    <td class="amount ${transaction.type}">
-                        ${transaction.type === 'income' ? '+' : '-'}${this.app.formatCurrency(transaction.amount)}
-                    </td>
-                    <td>
-                        <span class="type-badge ${transaction.type}">
-                            ${transaction.type === 'income' ? 'Доход' : 'Расход'}
-                        </span>
-                    </td>
-                    <td>
-                        ${note ? `<span class="note-badge">${note}</span>` : ''}
-                    </td>
-                    <td>
-                        <div class="table-actions">
-                            <button class="btn btn-sm btn-text" onclick="window.bugalterApp.editTransaction('${transaction.id}')">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-sm btn-text" onclick="window.bugalterApp.deleteTransaction('${transaction.id}')">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </td>
-                </tr>
-            `}).join('');
-        } catch (error) {
-            console.error('Error rendering transactions:', error);
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="7" class="error-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <h3>Ошибка загрузки</h3>
-                        <p>Не удалось загрузить транзакции</p>
-                    </td>
-                </tr>
-            `;
-        }
-    }
-
-    filterTransactions(transactions) {
-        return transactions.filter(transaction => {
-            const matchesSearch = !this.currentFilters.search || 
-                (transaction.description && transaction.description.toLowerCase().includes(this.currentFilters.search.toLowerCase()));
-            
-            const matchesCategory = !this.currentFilters.category || 
-                transaction.category_id === this.currentFilters.category;
-            
-            const matchesType = !this.currentFilters.type || 
-                transaction.type === this.currentFilters.type;
-            
-            const matchesDate = !this.currentFilters.date || 
-                transaction.date === this.currentFilters.date;
-            
-            return matchesSearch && matchesCategory && matchesType && matchesDate;
-        });
-    }
-
-    async setupTransactionFilters() {
-        const searchInput = document.getElementById('search-transactions');
-        const categoryFilter = document.getElementById('category-filter');
-        const typeFilter = document.getElementById('type-filter');
-        const dateFilter = document.getElementById('date-filter');
-
-        // Populate category filter
-        await this.populateCategoryFilter();
-
-        // Setup filter event listeners
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                this.currentFilters.search = e.target.value;
-                this.renderTransactionsTable();
-            });
-        }
-
-        if (categoryFilter) {
-            categoryFilter.addEventListener('change', (e) => {
-                this.currentFilters.category = e.target.value;
-                this.renderTransactionsTable();
-            });
-        }
-
-        if (typeFilter) {
-            typeFilter.addEventListener('change', (e) => {
-                this.currentFilters.type = e.target.value;
-                this.renderTransactionsTable();
-            });
-        }
-
-        if (dateFilter) {
-            dateFilter.addEventListener('change', (e) => {
-                this.currentFilters.date = e.target.value;
-                this.renderTransactionsTable();
-            });
-        }
-    }
-
-    async populateCategoryFilter() {
-        const categoryFilter = document.getElementById('category-filter');
-        if (!categoryFilter) return;
-
-        try {
-            const categories = await this.loadCategories();
-            
-            categoryFilter.innerHTML = `
-                <option value="">Все категории</option>
-                ${categories.map(category => `
-                    <option value="${category.id}">${category.name}</option>
-                `).join('')}
-            `;
-        } catch (error) {
-            console.error('Error populating category filter:', error);
-        }
-    }
-
-    getCategoryColor(categoryId) {
-        // This would need to be implemented with actual category data
-        const colors = ['#10b981', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444', '#06b6d4'];
-        return colors[Math.abs(categoryId.hashCode()) % colors.length];
-    }
-
-    getCategoryName(categoryId) {
-        // This would need to be implemented with actual category data
-        return 'Категория';
-    }
-
-    async editTransaction(transactionId) {
-        try {
-            const result = await this.apiRequest(`/transactions/${transactionId}`);
-            const transaction = result.transaction;
-            
-            // Populate edit form
-            document.getElementById('edit-transaction-id').value = transaction.id;
-            document.getElementById('edit-amount').value = transaction.amount;
-            document.getElementById('edit-type').value = transaction.type;
-            document.getElementById('edit-category').value = transaction.category_id || '';
-            document.getElementById('edit-description').value = transaction.description || '';
-            document.getElementById('edit-date').value = transaction.date;
-            
-            // Show edit modal
-            document.getElementById('edit-transaction-modal').style.display = 'block';
-        } catch (error) {
-            console.error('Error loading transaction for edit:', error);
-            this.showError('Ошибка при загрузке транзакции');
-        }
-    }
-
-    async deleteTransaction(transactionId) {
-        if (!confirm('Вы уверены, что хотите удалить эту транзакцию?')) {
+        console.log('renderTransactionsTable вызван');
+        const transactionsList = document.getElementById('transactions-list');
+        console.log('transactionsList элемент:', transactionsList);
+        
+        if (!transactionsList) {
+            console.error('Элемент transactions-list не найден');
             return;
         }
 
         try {
-            await this.deleteTransaction(transactionId);
-            this.renderTransactionsTable();
-            this.app.updateDashboard();
+            // Загружаем транзакции напрямую из localStorage для отладки
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            console.log('Загруженные транзакции:', transactions);
+            
+            // Применяем фильтры
+            this.filteredTransactions = transactions;
+            console.log('Отфильтрованные транзакции:', this.filteredTransactions);
+            
+            if (this.filteredTransactions.length === 0) {
+                transactionsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-receipt"></i>
+                        <h3>Нет транзакций</h3>
+                        <p>Добавьте первую транзакцию или измените фильтры</p>
+                        <button class="btn btn-primary" onclick="window.bugalterApp.showQuickAddModal()">
+                            <i class="fas fa-plus"></i>
+                            Добавить транзакцию
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            transactionsList.innerHTML = this.filteredTransactions.map(transaction => {
+                const amount = Math.abs(transaction.amount);
+                const amountDisplay = transaction.type === 'income' ? `+${this.app.formatCurrency(amount)}` : `-${this.app.formatCurrency(amount)}`;
+                const typeDisplay = transaction.type === 'income' ? 'Доход' : 'Расход';
+                const categoryDisplay = transaction.category || 'Без категории';
+                const sourceDisplay = transaction.source || 'Не указан';
+                const commentDisplay = transaction.comment || '';
+                
+                return `
+                <div class="transaction-item" data-transaction-id="${transaction.id}">
+                    <div class="transaction-info">
+                        <div class="transaction-date">
+                            <i class="fas fa-calendar"></i>
+                            ${new Date(transaction.date).toLocaleDateString('ru-RU')}
+                        </div>
+                        <div class="transaction-details">
+                            <div class="transaction-description">
+                                <strong>${transaction.description || 'Без описания'}</strong>
+                            </div>
+                            <div class="transaction-meta">
+                                <span class="transaction-type-badge ${transaction.type}">
+                                    <i class="fas fa-${transaction.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
+                                    ${typeDisplay}
+                                </span>
+                                <span class="transaction-category">
+                                    <i class="fas fa-tag"></i>
+                                    ${categoryDisplay}
+                                </span>
+                                <span class="transaction-source">
+                                    <i class="fas fa-building"></i>
+                                    ${sourceDisplay}
+                                </span>
+                            </div>
+                            ${commentDisplay ? `<div class="transaction-comment"><i class="fas fa-comment"></i> ${commentDisplay}</div>` : ''}
+                        </div>
+                    </div>
+                    <div class="transaction-amount">
+                        <div class="amount ${transaction.type}">
+                            ${amountDisplay}
+                        </div>
+                    </div>
+                    <div class="transaction-actions">
+                        <button class="btn btn-sm btn-outline" onclick="window.bugalterApp.transactionManager.editTransaction('${transaction.id}')" title="Редактировать">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-sm btn-danger" onclick="window.bugalterApp.transactionManager.deleteTransaction('${transaction.id}')" title="Удалить">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }).join('');
+            
+            console.log('Транзакции успешно отображены');
         } catch (error) {
-            console.error('Error deleting transaction:', error);
+            console.error('Error rendering transactions:', error);
+            transactionsList.innerHTML = `
+                <div class="error-state">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Ошибка загрузки</h3>
+                    <p>Не удалось загрузить транзакции: ${error.message}</p>
+                    <button class="btn btn-primary" onclick="window.bugalterApp.transactionManager.renderTransactionsTable()">
+                        Попробовать снова
+                    </button>
+                </div>
+            `;
         }
     }
 
-    async exportTransactions() {
-        try {
-            const transactions = await this.loadTransactions();
-            const csv = this.convertToCSV(transactions);
-            
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            
-            link.setAttribute('href', url);
-            link.setAttribute('download', `transactions_${new Date().toISOString().split('T')[0]}.csv`);
-            link.style.visibility = 'hidden';
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (error) {
-            console.error('Error exporting transactions:', error);
-            this.showError('Ошибка при экспорте транзакций');
-        }
-    }
-
-    convertToCSV(transactions) {
-        const headers = ['Дата', 'Описание', 'Категория', 'Сумма', 'Тип'];
-        const rows = transactions.map(t => [
-            new Date(t.date).toLocaleDateString('ru-RU'),
-            t.description || '',
-            this.getCategoryName(t.category_id),
-            t.amount,
-            t.type === 'income' ? 'Доход' : 'Расход'
-        ]);
+    async createTransaction(transactionData) {
+        console.log('=== СОЗДАНИЕ НОВОЙ ТРАНЗАКЦИИ ===');
+        console.log('Входные данные:', transactionData);
         
-        return [headers, ...rows]
-            .map(row => row.map(cell => `"${cell}"`).join(','))
-            .join('\n');
+        try {
+            // Загружаем существующие транзакции
+            const existingTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            console.log('Существующих транзакций:', existingTransactions.length);
+            
+            // Создаем уникальный ID
+            const newId = Date.now() + Math.random();
+            
+            const transaction = {
+                id: newId,
+                description: transactionData.description || '',
+                amount: transactionData.type === 'expense' ? -Math.abs(transactionData.amount) : Math.abs(transactionData.amount),
+                type: transactionData.type || 'expense',
+                category: transactionData.category || '',
+                source: transactionData.source || '',
+                date: transactionData.date || new Date().toISOString().split('T')[0],
+                comment: transactionData.comment || '',
+                createdAt: new Date().toISOString()
+            };
+            
+            console.log('Создана транзакция:', transaction);
+            
+            // Добавляем к существующим транзакциям
+            const updatedTransactions = [...existingTransactions, transaction];
+            console.log('Всего транзакций после добавления:', updatedTransactions.length);
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('transactions', JSON.stringify(updatedTransactions));
+            console.log('Транзакция сохранена в localStorage');
+            
+            // Обновляем внутренние массивы
+            this.transactions = updatedTransactions;
+            this.filteredTransactions = updatedTransactions;
+            
+            console.log('=== ТРАНЗАКЦИЯ УСПЕШНО СОЗДАНА ===');
+            return transaction;
+            
+        } catch (error) {
+            console.error('Ошибка при создании транзакции:', error);
+            throw error;
+        }
     }
 
-    showSuccess(message) {
-        // Implement success notification
-        console.log('Success:', message);
+    async setupTransactionFilters() {
+        console.log('Фильтры транзакций настроены');
     }
 
-    showError(message) {
-        // Implement error notification
-        console.error('Error:', message);
+    async editTransaction(transactionId) {
+        console.log('Редактирование транзакции с ID:', transactionId, 'тип:', typeof transactionId);
+        
+        // Загружаем транзакции из localStorage
+        const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        const transaction = transactions.find(t => t.id.toString() === transactionId.toString());
+        
+        if (transaction) {
+            console.log('Найдена транзакция для редактирования:', transaction);
+            this.showEditModal(transaction);
+        } else {
+            console.log('Транзакция не найдена для редактирования');
+            this.app.showNotification('Транзакция не найдена', 'error');
+        }
+    }
+
+    async deleteTransaction(transactionId) {
+        console.log('Удаление транзакции с ID:', transactionId, 'тип:', typeof transactionId);
+        
+        // Загружаем текущие транзакции
+        const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        console.log('Всего транзакций до удаления:', transactions.length);
+        
+        // ИСПРАВЛЕНИЕ: Правильное сравнение ID
+        const filteredTransactions = transactions.filter(t => {
+            const tId = t.id.toString();
+            const targetId = transactionId.toString();
+            const matches = tId === targetId;
+            console.log(`Сравнение: ${tId} === ${targetId} = ${matches}`);
+            return !matches; // Оставляем только те, которые НЕ совпадают
+        });
+        
+        console.log('Транзакций после фильтрации:', filteredTransactions.length);
+        
+        if (filteredTransactions.length === transactions.length) {
+            console.log('Транзакция не найдена для удаления');
+            this.app.showNotification('Транзакция не найдена', 'error');
+            return;
+        }
+        
+        // Обновляем localStorage
+        localStorage.setItem('transactions', JSON.stringify(filteredTransactions));
+        
+        // Обновляем внутренние массивы
+        this.transactions = filteredTransactions;
+        this.filteredTransactions = filteredTransactions;
+        
+        // Перерисовываем таблицу
+        await this.renderTransactionsTable();
+        
+        // Показываем уведомление
+        this.app.showNotification('Транзакция удалена', 'success');
+    }
+
+    showEditModal(transaction) {
+        // Создаем модальное окно для редактирования
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Редактировать транзакцию</h3>
+                    <button class="btn-close" onclick="this.closest('.modal').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-transaction-form">
+                        <div class="form-group">
+                            <label>Описание</label>
+                            <input type="text" id="edit-description" value="${transaction.description || ''}" required>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Сумма</label>
+                                <input type="number" id="edit-amount" value="${Math.abs(transaction.amount)}" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Тип</label>
+                                <select id="edit-type" required>
+                                    <option value="income" ${transaction.type === 'income' ? 'selected' : ''}>Доход</option>
+                                    <option value="expense" ${transaction.type === 'expense' ? 'selected' : ''}>Расход</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Категория</label>
+                                <input type="text" id="edit-category" value="${transaction.category || ''}">
+                            </div>
+                            <div class="form-group">
+                                <label>Источник</label>
+                                <input type="text" id="edit-source" value="${transaction.source || ''}">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Дата</label>
+                            <input type="date" id="edit-date" value="${transaction.date}" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Комментарий</label>
+                            <textarea id="edit-comment" rows="3">${transaction.comment || ''}</textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="this.closest('.modal').remove()">Отмена</button>
+                            <button type="submit" class="btn btn-primary">Сохранить</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Обработчик отправки формы
+        document.getElementById('edit-transaction-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = {
+                description: document.getElementById('edit-description').value,
+                amount: parseFloat(document.getElementById('edit-amount').value),
+                type: document.getElementById('edit-type').value,
+                category: document.getElementById('edit-category').value,
+                source: document.getElementById('edit-source').value,
+                date: document.getElementById('edit-date').value,
+                comment: document.getElementById('edit-comment').value
+            };
+            
+            // Обновляем транзакцию
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            const index = transactions.findIndex(t => t.id.toString() === transaction.id.toString());
+            
+            if (index !== -1) {
+                transactions[index] = {
+                    ...transactions[index],
+                    ...formData,
+                    amount: formData.type === 'expense' ? -Math.abs(formData.amount) : Math.abs(formData.amount),
+                    updatedAt: new Date().toISOString()
+                };
+                
+                // Обновляем localStorage
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+                
+                // Обновляем внутренние массивы
+                this.transactions = transactions;
+                this.filteredTransactions = transactions;
+                
+                // Перерисовываем таблицу
+                await this.renderTransactionsTable();
+                
+                // Закрываем модальное окно
+                modal.remove();
+                
+                // Показываем уведомление
+                this.app.showNotification('Транзакция обновлена', 'success');
+            } else {
+                console.error('Транзакция не найдена для обновления');
+                this.app.showNotification('Ошибка обновления транзакции', 'error');
+            }
+        });
     }
 
     static extendApp(app) {
+        console.log('Инициализация TransactionManager...');
         app.transactionManager = new TransactionManager(app);
-        app.transactionManager.setupTransactionFilters();
-        app.transactionManager.renderTransactionsTable();
+        console.log('TransactionManager создан:', app.transactionManager);
+        
+        // Устанавливаем фильтры
+        app.transactionManager.setupTransactionFilters().then(() => {
+            console.log('Фильтры транзакций настроены');
+        }).catch(error => {
+            console.error('Ошибка настройки фильтров:', error);
+        });
+        
+        // Отображаем транзакции
+        app.transactionManager.renderTransactionsTable().then(() => {
+            console.log('Транзакции отображены');
+        }).catch(error => {
+            console.error('Ошибка отображения транзакций:', error);
+        });
     }
-} 
+}
+
+// Делаем TransactionManager глобально доступным
+window.TransactionManager = TransactionManager; 

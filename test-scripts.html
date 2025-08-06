@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест загрузки скриптов</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        .warning {
+            color: orange;
+        }
+    </style>
+</head>
+<body>
+    <h1>Тест загрузки скриптов</h1>
+    
+    <div class="test-section">
+        <h2>Проверка загрузки файлов</h2>
+        <div id="script-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Проверка классов</h2>
+        <div id="class-status"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Тестовые действия</h2>
+        <button onclick="testTransactionManager()">Тест TransactionManager</button>
+        <button onclick="addTestTransaction()">Добавить тестовую транзакцию</button>
+        <button onclick="checkLocalStorage()">Проверить localStorage</button>
+    </div>
+
+    <script>
+        // Проверяем загрузку скриптов
+        function checkScripts() {
+            const statusDiv = document.getElementById('script-status');
+            const scripts = [
+                'js/app.js',
+                'js/transactions.js',
+                'js/budget.js',
+                'js/goals.js',
+                'js/analytics.js',
+                'js/ai-insights.js',
+                'js/utils.js'
+            ];
+            
+            let status = '';
+            
+            scripts.forEach(script => {
+                try {
+                    // Попробуем загрузить скрипт
+                    const scriptElement = document.createElement('script');
+                    scriptElement.src = script;
+                    scriptElement.onload = () => {
+                        status += `<p class="success">✅ ${script} - загружен</p>`;
+                        statusDiv.innerHTML = status;
+                    };
+                    scriptElement.onerror = () => {
+                        status += `<p class="error">❌ ${script} - ошибка загрузки</p>`;
+                        statusDiv.innerHTML = status;
+                    };
+                    document.head.appendChild(scriptElement);
+                } catch (error) {
+                    status += `<p class="error">❌ ${script} - ошибка: ${error.message}</p>`;
+                    statusDiv.innerHTML = status;
+                }
+            });
+        }
+        
+        function checkClasses() {
+            const classDiv = document.getElementById('class-status');
+            const classes = [
+                'BugalterAIApp',
+                'TransactionManager',
+                'BudgetManager',
+                'GoalsManager',
+                'AnalyticsManager',
+                'AIInsightsManager'
+            ];
+            
+            let status = '';
+            
+            classes.forEach(className => {
+                if (typeof window[className] !== 'undefined') {
+                    status += `<p class="success">✅ ${className} - доступен</p>`;
+                } else {
+                    status += `<p class="error">❌ ${className} - не найден</p>`;
+                }
+            });
+            
+            classDiv.innerHTML = status;
+        }
+        
+        function testTransactionManager() {
+            if (typeof TransactionManager !== 'undefined') {
+                console.log('TransactionManager найден');
+                console.log('TransactionManager:', TransactionManager);
+                
+                // Попробуем создать экземпляр
+                try {
+                    const testApp = { formatCurrency: (amount) => `${amount} ₽` };
+                    TransactionManager.extendApp(testApp);
+                    console.log('TransactionManager успешно инициализирован');
+                    alert('TransactionManager работает корректно!');
+                } catch (error) {
+                    console.error('Ошибка инициализации TransactionManager:', error);
+                    alert(`Ошибка инициализации: ${error.message}`);
+                }
+            } else {
+                console.error('TransactionManager не найден');
+                alert('TransactionManager не найден!');
+            }
+        }
+        
+        function addTestTransaction() {
+            const transaction = {
+                id: Date.now(),
+                amount: 10000,
+                type: 'income',
+                category: 'salary',
+                description: 'Тестовая транзакция',
+                date: new Date().toISOString().split('T')[0],
+                createdAt: new Date().toISOString()
+            };
+            
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+            
+            console.log('Тестовая транзакция добавлена');
+            alert('Тестовая транзакция добавлена в localStorage');
+        }
+        
+        function checkLocalStorage() {
+            const transactions = localStorage.getItem('transactions');
+            console.log('localStorage transactions:', transactions);
+            alert(`localStorage содержит: ${transactions || 'Нет данных'}`);
+        }
+        
+        // Автоматическая проверка при загрузке
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                checkScripts();
+                setTimeout(() => {
+                    checkClasses();
+                }, 1000);
+            }, 500);
+        });
+    </script>
+    
+    <!-- Подключаем скрипты -->
+    <script src="js/app.js"></script>
+    <script src="js/transactions.js"></script>
+    <script src="js/budget.js"></script>
+    <script src="js/goals.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/ai-insights.js"></script>
+    <script src="js/utils.js"></script>
+</body>
+</html> 

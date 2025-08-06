@@ -19,7 +19,10 @@ class BugalterAIApp {
         this.loadCachedExchangeRates();
         this.loadExchangeRates();
         
-        this.loadDashboardData();
+        // Restore last active section or default to dashboard
+        const lastSection = localStorage.getItem('currentSection') || 'dashboard';
+        this.switchSection(lastSection);
+        
         this.setupCharts();
         this.setupQuickAdd();
     }
@@ -80,8 +83,12 @@ class BugalterAIApp {
         });
 
         document.getElementById('reset-data')?.addEventListener('click', () => {
+            console.log('Кнопка сброса данных нажата');
             if (confirm('Вы уверены, что хотите сбросить все данные? Это действие нельзя отменить.')) {
+                console.log('Пользователь подтвердил сброс данных');
                 this.resetAllData();
+            } else {
+                console.log('Пользователь отменил сброс данных');
             }
         });
 
@@ -92,6 +99,112 @@ class BugalterAIApp {
 
         // Settings
         this.setupSettings();
+
+        // Advanced transaction filters
+        this.bindTransactionFilters();
+        
+        // Создать глобальные функции для отладки
+        window.resetAllDataGlobal = () => {
+            console.log('Глобальная функция сброса данных вызвана');
+            this.resetAllData();
+        };
+        
+        window.restoreFromBackupGlobal = () => {
+            console.log('Глобальная функция восстановления данных вызвана');
+            this.restoreFromBackup();
+        };
+        
+        // Автоматическое резервное копирование каждые 30 секунд
+        setInterval(() => {
+            this.createBackup();
+        }, 30000);
+        
+        // Создать резервную копию при загрузке страницы
+        this.createBackup();
+    }
+
+    bindTransactionFilters() {
+        // Add transaction button
+        document.getElementById('add-transaction-btn')?.addEventListener('click', () => {
+            this.showQuickAddModal();
+        });
+        
+        // Date range filter
+        document.getElementById('date-range-filter')?.addEventListener('change', (e) => {
+            this.handleDateRangeFilter(e.target.value);
+        });
+
+        // Category filter
+        document.getElementById('category-filter')?.addEventListener('change', (e) => {
+            this.handleCategoryFilter(e.target.value);
+        });
+
+        // Amount filter
+        document.getElementById('amount-filter')?.addEventListener('change', (e) => {
+            this.handleAmountFilter(e.target.value);
+        });
+
+        // Sort filter
+        document.getElementById('sort-filter')?.addEventListener('change', (e) => {
+            this.handleSortFilter(e.target.value);
+        });
+
+        // Apply filters button
+        document.getElementById('apply-filters')?.addEventListener('click', () => {
+            this.applyAdvancedFilters();
+        });
+
+        // Clear filters button
+        document.getElementById('clear-filters')?.addEventListener('click', () => {
+            this.clearAdvancedFilters();
+        });
+
+        // Transaction management buttons
+        document.getElementById('bulk-edit')?.addEventListener('click', () => {
+            this.showBulkEditModal();
+        });
+
+        document.getElementById('bulk-delete')?.addEventListener('click', () => {
+            this.showBulkDeleteModal();
+        });
+
+        document.getElementById('duplicate-transaction')?.addEventListener('click', () => {
+            this.duplicateSelectedTransactions();
+        });
+
+        document.getElementById('export-selected')?.addEventListener('click', () => {
+            this.exportSelectedTransactions();
+        });
+
+        // Selection buttons
+        document.getElementById('select-all')?.addEventListener('click', () => {
+            this.selectAllTransactions();
+        });
+
+        document.getElementById('deselect-all')?.addEventListener('click', () => {
+            this.deselectAllTransactions();
+        });
+
+        // Transaction actions modal
+        document.getElementById('close-transaction-modal')?.addEventListener('click', () => {
+            this.closeTransactionModal();
+        });
+
+        document.getElementById('edit-transaction')?.addEventListener('click', () => {
+            this.editSelectedTransaction();
+        });
+
+        document.getElementById('duplicate-transaction-action')?.addEventListener('click', () => {
+            this.duplicateSelectedTransaction();
+        });
+
+        document.getElementById('delete-transaction')?.addEventListener('click', () => {
+            this.deleteSelectedTransaction();
+        });
+
+        document.getElementById('cancel-transaction-action')?.addEventListener('click', () => {
+            this.closeTransactionModal();
+        });
     }
 
     setupNavigation() {
@@ -103,14 +216,20 @@ class BugalterAIApp {
             }
         });
 
-        // Initial section based on hash
+        // Initial section based on hash or localStorage
         const hash = window.location.hash.substring(1);
+        const savedSection = localStorage.getItem('currentSection');
+        
         if (hash) {
             this.switchSection(hash);
+        } else if (savedSection) {
+            this.switchSection(savedSection);
         }
     }
 
     switchSection(sectionId) {
+        console.log(`Переключение на раздел: ${sectionId}`);
+        
         // Hide all sections
         document.querySelectorAll('.section').forEach(section => {
             section.classList.remove('active');
@@ -121,6 +240,9 @@ class BugalterAIApp {
         if (targetSection) {
             targetSection.classList.add('active');
             this.currentSection = sectionId;
+            console.log(`Раздел ${sectionId} активирован`);
+        } else {
+            console.error(`Раздел ${sectionId} не найден!`);
         }
 
         // Update navigation
@@ -131,9 +253,19 @@ class BugalterAIApp {
         const activeLink = document.querySelector(`[href="#${sectionId}"]`);
         if (activeLink) {
             activeLink.classList.add('active');
+            console.log(`Навигационная ссылка ${sectionId} активирована`);
+        } else {
+            console.error(`Навигационная ссылка ${sectionId} не найдена!`);
         }
 
+        // Save current section to localStorage
+        localStorage.setItem('currentSection', sectionId);
+        
+        // Update URL hash
+        window.location.hash = `#${sectionId}`;
+
         // Load section-specific data
+        console.log(`Загружаем данные для раздела: ${sectionId}`);
         this.loadSectionData(sectionId);
     }
 
@@ -143,7 +275,34 @@ class BugalterAIApp {
                 this.loadDashboardData();
                 break;
             case 'transactions':
+                console.log('Загрузка раздела транзакций...');
                 this.loadTransactions();
+                
+                // Принудительная инициализация TransactionManager если он не существует
+                if (!this.transactionManager && typeof TransactionManager !== 'undefined') {
+                    console.log('Принудительная инициализация TransactionManager...');
+                    TransactionManager.extendApp(this);
+                }
+                
+                // Убедимся, что транзакции отображаются
+                if (this.transactionManager) {
+                    console.log('TransactionManager найден, отображаем транзакции...');
+                    setTimeout(() => {
+                        this.transactionManager.renderTransactionsTable();
+                    }, 200);
+                } else {
+                    console.error('TransactionManager не найден!');
+                    // Попробуем инициализировать еще раз
+                    if (typeof TransactionManager !== 'undefined') {
+                        console.log('Повторная попытка инициализации TransactionManager...');
+                        TransactionManager.extendApp(this);
+                        setTimeout(() => {
+                            if (this.transactionManager) {
+                                this.transactionManager.renderTransactionsTable();
+                            }
+                        }, 300);
+                    }
+                }
                 break;
             case 'budget':
                 // Budget data is handled by BudgetManager
@@ -178,33 +337,45 @@ class BugalterAIApp {
         // Load data from localStorage or use empty stats
         const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
         
-        // Calculate real stats from transactions
-        const currentMonth = new Date().getMonth();
-        const currentYear = new Date().getFullYear();
+        // Get current period from active button
+        const activePeriodButton = document.querySelector('[data-period].active');
+        const currentPeriod = activePeriodButton ? activePeriodButton.dataset.period : 'month';
         
-        const monthTransactions = transactions.filter(t => {
-            const transactionDate = new Date(t.date);
-            return transactionDate.getMonth() === currentMonth && 
-                   transactionDate.getFullYear() === currentYear;
-        });
+        // Filter transactions by selected period for income/expense stats
+        const filteredTransactions = this.filterTransactionsByPeriod(transactions, currentPeriod);
         
-        const income = monthTransactions
+        // Calculate period-specific income and expense
+        const periodIncome = filteredTransactions
             .filter(t => t.type === 'income')
             .reduce((sum, t) => sum + Math.abs(t.amount), 0);
             
-        const expense = monthTransactions
+        const periodExpense = filteredTransactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+        
+        // Calculate total balance (all time) - НЕ ИЗМЕНЯЕТСЯ при смене периода
+        const totalIncome = transactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            
+        const totalExpense = transactions
             .filter(t => t.type === 'expense')
             .reduce((sum, t) => sum + Math.abs(t.amount), 0);
             
-        const balance = income - expense;
-        const budgetUsed = income > 0 ? Math.round((expense / income) * 100) : 0;
+        const totalBalance = totalIncome - totalExpense;
+        const budgetUsed = periodIncome > 0 ? Math.round((periodExpense / periodIncome) * 100) : 0;
 
         const stats = {
-            balance: balance,
-            income: income,
-            expense: expense,
+            balance: totalBalance, // Всегда показывает общий баланс (все время)
+            income: periodIncome,  // Показывает доходы за выбранный период
+            expense: periodExpense, // Показывает расходы за выбранный период
             budgetUsed: budgetUsed
         };
+
+        console.log(`Обновление статистики дашборда:`);
+        console.log(`- Общий баланс (все время): ${totalBalance}`);
+        console.log(`- Доходы за ${currentPeriod}: ${periodIncome}`);
+        console.log(`- Расходы за ${currentPeriod}: ${periodExpense}`);
 
         // Update stat cards
         const balanceEl = document.getElementById('current-balance');
@@ -228,21 +399,88 @@ class BugalterAIApp {
         }
     }
 
+    filterTransactionsByPeriod(transactions, period) {
+        const now = new Date();
+        let startDate, endDate;
+
+        switch (period) {
+            case 'today':
+                startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                endDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+                break;
+            case 'week':
+                const dayOfWeek = now.getDay();
+                const diff = now.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1);
+                startDate = new Date(now.getFullYear(), now.getMonth(), diff);
+                endDate = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate() + 6, 23, 59, 59);
+                break;
+            case 'month':
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+                break;
+            case 'year':
+                startDate = new Date(now.getFullYear(), 0, 1);
+                endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59);
+                break;
+            default:
+                startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59);
+        }
+
+        const filteredTransactions = transactions.filter(transaction => {
+            // Убеждаемся, что дата транзакции корректно парсится
+            let transactionDate;
+            if (typeof transaction.date === 'string') {
+                // Если дата в формате YYYY-MM-DD
+                transactionDate = new Date(transaction.date + 'T00:00:00');
+            } else {
+                transactionDate = new Date(transaction.date);
+            }
+            
+            // Проверяем, что дата валидна
+            if (isNaN(transactionDate.getTime())) {
+                return false;
+            }
+            
+            const isInPeriod = transactionDate >= startDate && transactionDate <= endDate;
+            return isInPeriod;
+        });
+
+        return filteredTransactions;
+    }
+
     updateAIInsights() {
         const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
         
+        // Get current period from active button
+        const activePeriodButton = document.querySelector('[data-period].active');
+        const currentPeriod = activePeriodButton ? activePeriodButton.dataset.period : 'month';
+        
+        // Filter transactions by selected period
+        const filteredTransactions = this.filterTransactionsByPeriod(transactions, currentPeriod);
+        
         let insights;
-        if (transactions.length === 0) {
+        if (filteredTransactions.length === 0) {
             insights = [
-                "Добро пожаловать! Начните отслеживать свои расходы за июль, добавив первую транзакцию.",
+                "Добро пожаловать! Начните отслеживать свои расходы, добавив первую транзакцию.",
                 "Совет: Добавляйте все свои расходы и доходы для точного анализа бюджета.",
                 "Используйте категории для лучшей организации ваших финансов.",
                 "Установите бюджетные лимиты для контроля расходов."
             ];
         } else {
+            const income = filteredTransactions
+                .filter(t => t.type === 'income')
+                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+                
+            const expense = filteredTransactions
+                .filter(t => t.type === 'expense')
+                .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+                
+            const balance = income - expense;
+            
             insights = [
                 "Ваши расходы на продукты на 15% выше среднего. Рекомендую установить лимит на эту категорию.",
-                `Отличная работа с бюджетом! Вы сэкономили ${this.formatCurrency(12000)} в этом месяце.`,
+                `Отличная работа с бюджетом! Вы сэкономили ${this.formatCurrency(balance)} за выбранный период.`,
                 "Ваши доходы растут на 8% в месяц. Отличная динамика!",
                 "Рассмотрите возможность инвестирования излишков в доходные инструменты."
             ];
@@ -261,8 +499,15 @@ class BugalterAIApp {
         // Load transactions from localStorage
         const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
         
-        // Get recent transactions (last 5)
-        const recentTransactions = transactions
+        // Get current period from active button
+        const activePeriodButton = document.querySelector('[data-period].active');
+        const currentPeriod = activePeriodButton ? activePeriodButton.dataset.period : 'month';
+        
+        // Filter transactions by selected period
+        const filteredTransactions = this.filterTransactionsByPeriod(transactions, currentPeriod);
+        
+        // Get recent transactions (last 5) from filtered transactions
+        const recentTransactions = filteredTransactions
             .sort((a, b) => new Date(b.date) - new Date(a.date))
             .slice(0, 5);
 
@@ -346,6 +591,18 @@ class BugalterAIApp {
     loadTransactions() {
         // This would load transactions from storage/API
         console.log('Loading transactions...');
+        
+        // Проверяем localStorage
+        const transactions = localStorage.getItem('transactions');
+        console.log('localStorage transactions:', transactions);
+        
+        // Принудительно отображаем транзакции если мы на странице транзакций
+        if (this.currentSection === 'transactions' && this.transactionManager) {
+            console.log('Принудительное отображение транзакций...');
+            setTimeout(() => {
+                this.transactionManager.renderTransactionsTable();
+            }, 200);
+        }
     }
 
     loadAnalytics() {
@@ -437,7 +694,14 @@ class BugalterAIApp {
 
         // Get real data from localStorage
         const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-        const chartData = this.getChartData(transactions);
+        
+        // Get current period from active button
+        const activePeriodButton = document.querySelector('[data-period].active');
+        const currentPeriod = activePeriodButton ? activePeriodButton.dataset.period : 'month';
+        
+        // Filter transactions by selected period
+        const filteredTransactions = this.filterTransactionsByPeriod(transactions, currentPeriod);
+        const chartData = this.getChartData(filteredTransactions);
 
         this.charts.incomeExpense = new Chart(ctx, {
             type: 'line',
@@ -502,20 +766,26 @@ class BugalterAIApp {
             this.charts.categoryPie.destroy();
         }
 
+        // Get real data from localStorage
+        const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        
+        // Get current period from active button
+        const activePeriodButton = document.querySelector('[data-period].active');
+        const currentPeriod = activePeriodButton ? activePeriodButton.dataset.period : 'month';
+        
+        // Filter transactions by selected period
+        const filteredTransactions = this.filterTransactionsByPeriod(transactions, currentPeriod);
+        
+        // Calculate category data from filtered transactions
+        const categoryData = this.getCategoryData(filteredTransactions);
+
         this.charts.categoryPie = new Chart(ctx, {
             type: 'doughnut',
             data: {
-                labels: ['Продукты', 'Транспорт', 'Развлечения', 'Покупки', 'Здоровье', 'Прочее'],
+                labels: categoryData.labels,
                 datasets: [{
-                    data: [25000, 15000, 12000, 8000, 5000, 3000],
-                    backgroundColor: [
-                        '#f59e0b',
-                        '#3b82f6',
-                        '#8b5cf6',
-                        '#ec4899',
-                        '#ef4444',
-                        '#6b7280'
-                    ]
+                    data: categoryData.data,
+                    backgroundColor: categoryData.colors
                 }]
             },
             options: {
@@ -528,6 +798,37 @@ class BugalterAIApp {
                 }
             }
         });
+    }
+
+    getCategoryData(transactions) {
+        // Filter only expense transactions
+        const expenses = transactions.filter(t => t.type === 'expense');
+        
+        // Group by category
+        const categoryMap = {};
+        expenses.forEach(transaction => {
+            const category = transaction.category || 'Прочее';
+            if (!categoryMap[category]) {
+                categoryMap[category] = 0;
+            }
+            categoryMap[category] += Math.abs(transaction.amount);
+        });
+
+        // Convert to arrays for Chart.js
+        const labels = Object.keys(categoryMap);
+        const data = Object.values(categoryMap);
+        
+        // Generate colors for categories
+        const colors = [
+            '#f59e0b', '#3b82f6', '#8b5cf6', '#ec4899', '#ef4444', '#6b7280',
+            '#10b981', '#f97316', '#06b6d4', '#84cc16', '#a855f7', '#64748b'
+        ];
+
+        return {
+            labels: labels,
+            data: data,
+            colors: labels.map((_, index) => colors[index % colors.length])
+        };
     }
 
     setupQuickAdd() {
@@ -683,7 +984,7 @@ class BugalterAIApp {
         });
     }
 
-    handleQuickAdd(form) {
+    async handleQuickAdd(form) {
         const formData = new FormData(form);
         const amount = parseFloat(formData.get('quick-amount'));
         const type = formData.get('quick-type');
@@ -727,10 +1028,23 @@ class BugalterAIApp {
             createdAt: new Date().toISOString()
         };
 
-        // Save to localStorage
-        const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
-        transactions.push(transaction);
-        localStorage.setItem('transactions', JSON.stringify(transactions));
+        // Save transaction using TransactionManager
+        if (this.transactionManager) {
+            try {
+                await this.transactionManager.createTransaction(transaction);
+            } catch (error) {
+                console.error('Error creating transaction:', error);
+                // Fallback: save directly to localStorage
+                const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                transactions.push(transaction);
+                localStorage.setItem('transactions', JSON.stringify(transactions));
+            }
+        } else {
+            // Fallback: save directly to localStorage
+            const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+            transactions.push(transaction);
+            localStorage.setItem('transactions', JSON.stringify(transactions));
+        }
 
         // Close modal
         const modal = document.getElementById('quick-add-modal');
@@ -746,11 +1060,30 @@ class BugalterAIApp {
             this.showNotification('Транзакция добавлена!', 'success');
         }
         
-        // Refresh dashboard
-        this.loadDashboardData();
+        // Refresh current section data
+        this.refreshCurrentSection();
+    }
+
+    refreshCurrentSection() {
+        // Refresh data for current section
+        this.loadSectionData(this.currentSection);
+        
+        // Update transactions table if we're on transactions page
+        if (this.currentSection === 'transactions' && this.transactionManager) {
+            setTimeout(() => {
+                this.transactionManager.renderTransactionsTable();
+            }, 100);
+        }
+        
+        // Update charts if we're on dashboard
+        if (this.currentSection === 'dashboard') {
+            this.setupCharts();
+        }
     }
 
     handlePeriodChange(period) {
+        console.log(`Переключение периода на: ${period}`);
+        
         // Update period selector
         document.querySelectorAll('[data-period]').forEach(btn => {
             btn.classList.remove('active');
@@ -759,6 +1092,16 @@ class BugalterAIApp {
 
         // Reload data for new period
         this.loadDashboardData();
+        
+        // Update charts for new period
+        this.setupCharts();
+        
+        // Update transactions table if we're on transactions page
+        if (this.transactionManager) {
+            this.transactionManager.renderTransactionsTable();
+        }
+        
+        console.log(`Период ${period} успешно применен`);
     }
 
     handleFilterChange(filter) {
@@ -798,20 +1141,124 @@ class BugalterAIApp {
         console.log('Creating backup...');
         this.showNotification('Резервная копия создана!', 'success');
     }
+    
+    createBackup() {
+        try {
+            const backup = {
+                timestamp: new Date().toISOString(),
+                transactions: JSON.parse(localStorage.getItem('transactions') || '[]'),
+                budgets: JSON.parse(localStorage.getItem('budgets') || '{}'),
+                goals: JSON.parse(localStorage.getItem('financial-goals') || '{}'),
+                settings: {
+                    theme: localStorage.getItem('theme'),
+                    currency: localStorage.getItem('currency'),
+                    language: localStorage.getItem('language')
+                }
+            };
+            
+            localStorage.setItem('backup_' + Date.now(), JSON.stringify(backup));
+            
+            // Ограничить количество резервных копий (оставить только последние 5)
+            const backupKeys = Object.keys(localStorage).filter(key => key.startsWith('backup_'));
+            if (backupKeys.length > 5) {
+                backupKeys.sort().slice(0, -5).forEach(key => {
+                    localStorage.removeItem(key);
+                });
+            }
+            
+            console.log('Автоматическая резервная копия создана');
+        } catch (error) {
+            console.error('Ошибка при создании резервной копии:', error);
+        }
+    }
+    
+    restoreFromBackup() {
+        try {
+            const backupKeys = Object.keys(localStorage).filter(key => key.startsWith('backup_'));
+            if (backupKeys.length === 0) {
+                this.showNotification('Резервные копии не найдены', 'error');
+                return;
+            }
+            
+            // Найти самую свежую резервную копию
+            const latestBackupKey = backupKeys.sort().pop();
+            const backup = JSON.parse(localStorage.getItem(latestBackupKey));
+            
+            // Восстановить данные
+            if (backup.transactions) {
+                localStorage.setItem('transactions', JSON.stringify(backup.transactions));
+            }
+            if (backup.budgets) {
+                localStorage.setItem('budgets', JSON.stringify(backup.budgets));
+            }
+            if (backup.goals) {
+                localStorage.setItem('financial-goals', JSON.stringify(backup.goals));
+            }
+            if (backup.settings) {
+                Object.entries(backup.settings).forEach(([key, value]) => {
+                    if (value) localStorage.setItem(key, value);
+                });
+            }
+            
+            this.showNotification('Данные восстановлены из резервной копии!', 'success');
+            this.loadDashboardData();
+            
+        } catch (error) {
+            console.error('Ошибка при восстановлении из резервной копии:', error);
+            this.showNotification('Ошибка при восстановлении данных', 'error');
+        }
+    }
 
     resetAllData() {
-        // Clear all data from localStorage
-        localStorage.removeItem('transactions');
-        localStorage.removeItem('budgets');
-        localStorage.removeItem('budget-categories');
-        localStorage.removeItem('financial-goals');
-        localStorage.removeItem('ai-chat-history');
+        console.log('=== НАЧАЛО СБРОСА ДАННЫХ ===');
         
-        // Reload dashboard with empty data
-        this.loadDashboardData();
-        this.setupCharts();
-        
-        this.showNotification('Все данные сброшены! Теперь можете добавить свои расходы за июль.', 'success');
+        try {
+            // Clear all data from localStorage
+            const keysToRemove = [
+                'transactions',
+                'budgets', 
+                'budget-categories',
+                'financial-goals',
+                'ai-chat-history',
+                'currentSection',
+                'theme',
+                'currency',
+                'language',
+                'exchangeRates'
+            ];
+            
+            keysToRemove.forEach(key => {
+                if (localStorage.getItem(key)) {
+                    localStorage.removeItem(key);
+                    console.log(`Удален ключ: ${key}`);
+                }
+            });
+            
+            console.log('Все данные из localStorage удалены');
+            
+            // Обновить внутренние массивы приложения
+            if (this.transactionManager) {
+                this.transactionManager.transactions = [];
+                this.transactionManager.filteredTransactions = [];
+                console.log('Внутренние массивы транзакций очищены');
+            }
+            
+            // Reload dashboard with empty data
+            this.loadDashboardData();
+            this.setupCharts();
+            
+            // Обновить транзакции если мы на странице транзакций
+            if (this.transactionManager) {
+                this.transactionManager.renderTransactionsTable();
+            }
+            
+            console.log('=== СБРОС ДАННЫХ ЗАВЕРШЕН ===');
+            this.showNotification('Все данные сброшены! Теперь можете добавить свои расходы за июль.', 'success');
+            
+        } catch (error) {
+            console.error('Ошибка при сбросе данных:', error);
+            this.showNotification('Ошибка при сбросе данных', 'error');
+        }
     }
 
     updateCurrency(currency) {
@@ -1075,9 +1522,176 @@ class BugalterAIApp {
             this.showNotification('Ошибка обновления курсов валют', 'error');
         }
     }
+
+    // Advanced Transaction Filter Methods
+    handleDateRangeFilter(value) {
+        console.log('Date range filter:', value);
+        // Implementation will be added
+    }
+
+    handleCategoryFilter(value) {
+        console.log('Category filter:', value);
+        // Implementation will be added
+    }
+
+    handleAmountFilter(value) {
+        console.log('Amount filter:', value);
+        // Implementation will be added
+    }
+
+    handleSortFilter(value) {
+        console.log('Sort filter:', value);
+        // Implementation will be added
+    }
+
+    applyAdvancedFilters() {
+        console.log('Applying advanced filters');
+        if (this.transactionManager) {
+            this.transactionManager.renderTransactionsTable();
+        }
+        this.showNotification('Фильтры применены', 'success');
+    }
+
+    clearAdvancedFilters() {
+        // Reset all filter inputs
+        document.getElementById('date-range-filter').value = 'month';
+        document.getElementById('category-filter').value = '';
+        document.getElementById('amount-filter').value = '';
+        document.getElementById('sort-filter').value = 'date-desc';
+        document.getElementById('date-from').value = '';
+        document.getElementById('date-to').value = '';
+        document.getElementById('search-transactions').value = '';
+
+        if (this.transactionManager) {
+            this.transactionManager.renderTransactionsTable();
+        }
+        this.showNotification('Фильтры очищены', 'info');
+    }
+
+    // Transaction Management Methods
+    showBulkEditModal() {
+        this.showNotification('Массовое редактирование в разработке', 'info');
+    }
+
+    showBulkDeleteModal() {
+        if (confirm('Вы уверены, что хотите удалить выбранные транзакции?')) {
+            this.showNotification('Массовое удаление в разработке', 'info');
+        }
+    }
+
+    duplicateSelectedTransactions() {
+        this.showNotification('Дублирование выбранных транзакций в разработке', 'info');
+    }
+
+    exportSelectedTransactions() {
+        this.showNotification('Экспорт выбранных транзакций в разработке', 'info');
+    }
+
+    selectAllTransactions() {
+        const checkboxes = document.querySelectorAll('.transaction-item input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = true);
+        this.updateSelectionInfo();
+    }
+
+    deselectAllTransactions() {
+        const checkboxes = document.querySelectorAll('.transaction-item input[type="checkbox"]');
+        checkboxes.forEach(checkbox => checkbox.checked = false);
+        this.updateSelectionInfo();
+    }
+
+    updateSelectionInfo() {
+        const selectedCount = document.querySelectorAll('.transaction-item input[type="checkbox"]:checked').length;
+        const selectionInfo = document.getElementById('selection-info');
+        const selectedCountElement = document.getElementById('selected-count');
+        
+        if (selectedCount > 0) {
+            selectionInfo.style.display = 'flex';
+            selectedCountElement.textContent = selectedCount;
+        } else {
+            selectionInfo.style.display = 'none';
+        }
+    }
+
+    closeTransactionModal() {
+        const modal = document.getElementById('transaction-actions-modal');
+        modal?.classList.remove('active');
+    }
+
+    editSelectedTransaction() {
+        this.showNotification('Редактирование транзакции в разработке', 'info');
+        this.closeTransactionModal();
+    }
+
+    duplicateSelectedTransaction() {
+        this.showNotification('Дублирование транзакции в разработке', 'info');
+        this.closeTransactionModal();
+    }
+
+    deleteSelectedTransaction() {
+        if (confirm('Вы уверены, что хотите удалить эту транзакцию?')) {
+            this.showNotification('Удаление транзакции в разработке', 'info');
+        }
+        this.closeTransactionModal();
+    }
 }
 
 // Initialize the application
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM загружен, инициализируем приложение...');
     window.bugalterApp = new BugalterAIApp();
+    
+    // Ждем загрузки всех скриптов перед инициализацией менеджеров
+    setTimeout(() => {
+        console.log('Проверяем доступность менеджеров...');
+        
+        // Initialize TransactionManager
+        if (typeof TransactionManager !== 'undefined') {
+            console.log('TransactionManager найден, инициализируем...');
+            TransactionManager.extendApp(window.bugalterApp);
+        } else {
+            console.error('TransactionManager не найден!');
+            // Попробуем еще раз через секунду
+            setTimeout(() => {
+                if (typeof TransactionManager !== 'undefined') {
+                    console.log('TransactionManager найден при повторной попытке...');
+                    TransactionManager.extendApp(window.bugalterApp);
+                } else {
+                    console.error('TransactionManager все еще не найден!');
+                }
+            }, 1000);
+        }
+        
+        // Initialize other managers
+        if (typeof AnalyticsManager !== 'undefined') {
+            AnalyticsManager.extendApp(window.bugalterApp);
+        }
+        
+        if (typeof AIInsightsManager !== 'undefined') {
+            AIInsightsManager.extendApp(window.bugalterApp);
+        }
+        
+        if (typeof ReportsManager !== 'undefined') {
+            ReportsManager.extendApp(window.bugalterApp);
+        }
+        
+        // Принудительная проверка инициализации
+        setTimeout(() => {
+            console.log('Проверка инициализации через 2 секунды...');
+            if (window.bugalterApp.transactionManager) {
+                console.log('TransactionManager успешно инициализирован');
+            } else {
+                console.error('TransactionManager не инициализирован!');
+            }
+        }, 2000);
+        
+        // Принудительная инициализация при загрузке страницы транзакций
+        setTimeout(() => {
+            if (window.location.hash === '#transactions') {
+                console.log('Принудительная инициализация для страницы транзакций...');
+                if (window.bugalterApp.transactionManager) {
+                    window.bugalterApp.transactionManager.renderTransactionsTable();
+                }
+            }
+        }, 3000);
+    }, 500);
 }); 
