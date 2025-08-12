@@ -45,58 +45,79 @@ class TransactionManager {
                 return;
             }
 
-            transactionsList.innerHTML = this.filteredTransactions.map(transaction => {
-                const amount = Math.abs(transaction.amount);
-                const amountDisplay = transaction.type === 'income' ? `+${this.app.formatCurrency(amount)}` : `-${this.app.formatCurrency(amount)}`;
-                const typeDisplay = transaction.type === 'income' ? 'Доход' : 'Расход';
-                const categoryDisplay = transaction.category || 'Без категории';
-                const sourceDisplay = transaction.source || 'Не указан';
-                const commentDisplay = transaction.comment || '';
-                
-                return `
-                <div class="transaction-item" data-transaction-id="${transaction.id}">
-                    <div class="transaction-info">
-                        <div class="transaction-date">
-                            <i class="fas fa-calendar"></i>
-                            ${new Date(transaction.date).toLocaleDateString('ru-RU')}
+            // Делегируем отображение транзакций в app.js
+            if (this.app && this.app.displayTransactions) {
+                this.app.displayTransactions();
+            } else {
+                // Fallback - простое отображение если app.js недоступен
+                transactionsList.innerHTML = this.filteredTransactions.map(transaction => {
+                    const amount = Math.abs(transaction.amount);
+                    const amountDisplay = transaction.type === 'income' ? `+${this.app.formatCurrency(amount)}` : `-${this.app.formatCurrency(amount)}`;
+                    const categoryDisplay = transaction.category || 'Без категории';
+                    const sourceDisplay = transaction.source || 'Не указан';
+                    
+                    return `
+                    <div class="transaction-item ${transaction.type}" data-transaction-id="${transaction.id}">
+                        <div class="transaction-icon">
+                            <i class="fas fa-${transaction.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
                         </div>
+                        
                         <div class="transaction-details">
-                            <div class="transaction-description">
-                                <strong>${transaction.description || 'Без описания'}</strong>
+                            <div class="transaction-header">
+                                <div class="transaction-id">
+                                    <span class="transaction-number">Транзакция: ${transaction.id}</span>
+                                    <span class="transaction-date">Создан: ${new Date(transaction.date).toLocaleDateString('ru-RU')}, ${new Date(transaction.date).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</span>
+                                </div>
                             </div>
-                            <div class="transaction-meta">
-                                <span class="transaction-type-badge ${transaction.type}">
-                                    <i class="fas fa-${transaction.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
-                                    ${typeDisplay}
-                                </span>
-                                <span class="transaction-category">
-                                    <i class="fas fa-tag"></i>
-                                    ${categoryDisplay}
-                                </span>
-                                <span class="transaction-source">
-                                    <i class="fas fa-building"></i>
-                                    ${sourceDisplay}
-                                </span>
+                            
+                            <div class="transaction-info-grid">
+                                <div class="info-column">
+                                    <div class="info-label">Тип</div>
+                                    <div class="info-value">
+                                        <span class="transaction-type">${transaction.type === 'income' ? 'Доход' : 'Расход'}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-column">
+                                    <div class="info-label">Категория</div>
+                                    <div class="info-value">
+                                        <span class="category-name">${categoryDisplay}</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-column">
+                                    <div class="info-label">Источник</div>
+                                    <div class="info-value">
+                                        <span class="source-name">${sourceDisplay}</span>
+                                        <i class="fas fa-info-circle info-icon"></i>
+                                    </div>
+                                </div>
+                                
+                                <div class="info-column">
+                                    <div class="info-label">Статус</div>
+                                    <div class="info-value">
+                                        <span class="status-badge ${transaction.type}">${transaction.type === 'income' ? 'Получен' : 'Потрачен'}</span>
+                                    </div>
+                                </div>
                             </div>
-                            ${commentDisplay ? `<div class="transaction-comment"><i class="fas fa-comment"></i> ${commentDisplay}</div>` : ''}
+                        </div>
+                        
+                        <div class="transaction-amount-section">
+                            <div class="amount-info">
+                                <div class="amount-value ${transaction.type}">${amountDisplay}</div>
+                                <div class="amount-label">Стоимость транзакции</div>
+                            </div>
+                        </div>
+                        
+                        <div class="transaction-action">
+                            <div class="action-icon ${transaction.type === 'income' ? 'success' : 'warning'}">
+                                <i class="fas fa-${transaction.type === 'income' ? 'check' : 'exclamation'}"></i>
+                            </div>
                         </div>
                     </div>
-                    <div class="transaction-amount">
-                        <div class="amount ${transaction.type}">
-                            ${amountDisplay}
-                        </div>
-                    </div>
-                    <div class="transaction-actions">
-                        <button class="btn btn-sm btn-outline" onclick="window.bugalterApp.transactionManager.editTransaction('${transaction.id}')" title="Редактировать">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-sm btn-danger" onclick="window.bugalterApp.transactionManager.deleteTransaction('${transaction.id}')" title="Удалить">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-                `;
-            }).join('');
+                    `;
+                }).join('');
+            }
             
             console.log('Транзакции успешно отображены');
         } catch (error) {
@@ -151,6 +172,9 @@ class TransactionManager {
             // Обновляем внутренние массивы
             this.transactions = updatedTransactions;
             this.filteredTransactions = updatedTransactions;
+            
+            // Обновляем аналитические карточки
+            this.updateAnalyticsCards();
             
             console.log('=== ТРАНЗАКЦИЯ УСПЕШНО СОЗДАНА ===');
             return transaction;
@@ -215,8 +239,154 @@ class TransactionManager {
         // Перерисовываем таблицу
         await this.renderTransactionsTable();
         
+        // Обновляем аналитические карточки
+        this.updateAnalyticsCards();
+        
         // Показываем уведомление
         this.app.showNotification('Транзакция удалена', 'success');
+    }
+
+    updateAnalyticsCards() {
+        console.log('=== ОБНОВЛЕНИЕ АНАЛИТИЧЕСКИХ КАРТОЧЕК ===');
+        
+        let transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        console.log('Загружено транзакций:', transactions.length);
+        
+        // Если транзакций нет, добавляем тестовые данные для проверки
+        if (transactions.length === 0) {
+            console.log('Транзакций нет, добавляем тестовые данные...');
+            const testTransactions = [
+                {
+                    id: Date.now() + 1,
+                    description: 'Зарплата',
+                    amount: 150000,
+                    type: 'income',
+                    category: 'Работа',
+                    source: 'Банк',
+                    date: new Date().toISOString().split('T')[0],
+                    comment: 'Тестовая транзакция',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: Date.now() + 2,
+                    description: 'Продукты',
+                    amount: -25000,
+                    type: 'expense',
+                    category: 'Продукты',
+                    source: 'Наличные',
+                    date: new Date().toISOString().split('T')[0],
+                    comment: 'Тестовая транзакция',
+                    createdAt: new Date().toISOString()
+                },
+                {
+                    id: Date.now() + 3,
+                    description: 'Такси',
+                    amount: -8000,
+                    type: 'expense',
+                    category: 'Транспорт',
+                    source: 'Карта',
+                    date: new Date().toISOString().split('T')[0],
+                    comment: 'Тестовая транзакция',
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            
+            localStorage.setItem('transactions', JSON.stringify(testTransactions));
+            transactions = testTransactions;
+            console.log('Добавлены тестовые транзакции:', testTransactions);
+        }
+        
+        // Подсчитываем общие суммы
+        const totalIncome = transactions
+            .filter(t => t.type === 'income')
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            
+        const totalExpense = transactions
+            .filter(t => t.type === 'expense')
+            .reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            
+        const balance = totalIncome - totalExpense;
+        const count = transactions.length;
+        
+        console.log('Подсчитанные суммы:', {
+            income: totalIncome,
+            expense: totalExpense,
+            balance: balance,
+            count: count
+        });
+        
+        // Обновляем элементы на странице транзакций (новые ID)
+        const balanceEl = document.getElementById('transactions-balance');
+        const incomeEl = document.getElementById('transactions-income');
+        const expenseEl = document.getElementById('transactions-expense');
+        const countEl = document.getElementById('transactions-count');
+        
+        // Также обновляем элементы на дашборде (старые ID для совместимости)
+        const dashboardBalanceEl = document.getElementById('current-balance');
+        const dashboardIncomeEl = document.getElementById('total-income');
+        const dashboardExpenseEl = document.getElementById('total-expense');
+        
+        console.log('Найденные элементы:', {
+            balanceEl: balanceEl,
+            incomeEl: incomeEl,
+            expenseEl: expenseEl,
+            countEl: countEl,
+            dashboardBalanceEl: dashboardBalanceEl,
+            dashboardIncomeEl: dashboardIncomeEl,
+            dashboardExpenseEl: dashboardExpenseEl
+        });
+        
+        // Функция форматирования валюты
+        const formatCurrency = (amount) => {
+            return this.app.formatCurrency ? this.app.formatCurrency(amount) : `${amount.toLocaleString()} UZS`;
+        };
+        
+        // Обновляем элементы на странице транзакций
+        if (balanceEl) {
+            balanceEl.textContent = formatCurrency(balance);
+            console.log('Обновлен баланс (транзакции):', formatCurrency(balance));
+        } else {
+            console.error('Элемент transactions-balance не найден!');
+        }
+        
+        if (incomeEl) {
+            incomeEl.textContent = formatCurrency(totalIncome);
+            console.log('Обновлен доход (транзакции):', formatCurrency(totalIncome));
+        } else {
+            console.error('Элемент transactions-income не найден!');
+        }
+        
+        if (expenseEl) {
+            expenseEl.textContent = formatCurrency(totalExpense);
+            console.log('Обновлен расход (транзакции):', formatCurrency(totalExpense));
+        } else {
+            console.error('Элемент transactions-expense не найден!');
+        }
+        
+        if (countEl) {
+            countEl.textContent = count;
+            console.log('Обновлено количество (транзакции):', count);
+        } else {
+            console.error('Элемент transactions-count не найден!');
+        }
+        
+        // Обновляем элементы на дашборде (для совместимости)
+        if (dashboardBalanceEl) {
+            dashboardBalanceEl.textContent = formatCurrency(balance);
+            console.log('Обновлен баланс (дашборд):', formatCurrency(balance));
+        }
+        
+        if (dashboardIncomeEl) {
+            dashboardIncomeEl.textContent = formatCurrency(totalIncome);
+            console.log('Обновлен доход (дашборд):', formatCurrency(totalIncome));
+        }
+        
+        if (dashboardExpenseEl) {
+            dashboardExpenseEl.textContent = formatCurrency(totalExpense);
+            console.log('Обновлен расход (дашборд):', formatCurrency(totalExpense));
+        }
+        
+        console.log('=== АНАЛИТИЧЕСКИЕ КАРТОЧКИ ОБНОВЛЕНЫ ===');
     }
 
     showEditModal(transaction) {
@@ -315,6 +485,9 @@ class TransactionManager {
                 // Перерисовываем таблицу
                 await this.renderTransactionsTable();
                 
+                // Обновляем аналитические карточки
+                this.updateAnalyticsCards();
+                
                 // Закрываем модальное окно
                 modal.remove();
                 
@@ -342,6 +515,8 @@ class TransactionManager {
         // Отображаем транзакции
         app.transactionManager.renderTransactionsTable().then(() => {
             console.log('Транзакции отображены');
+            // Обновляем аналитические карточки при загрузке
+            app.transactionManager.updateAnalyticsCards();
         }).catch(error => {
             console.error('Ошибка отображения транзакций:', error);
         });

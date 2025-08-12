@@ -300,7 +300,72 @@
             <div class="container">
                 <div class="section-header">
                     <h1 class="section-title">Транзакции</h1>
-                    <div class="section-actions">
+                </div>
+
+                <!-- Transactions Statistics -->
+                <div class="transactions-stats">
+                    <div class="stats-grid">
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-wallet"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-value" id="transactions-balance">0</h3>
+                                <p class="stat-label">Общий баланс</p>
+                                <span class="stat-change positive">Все время</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-up"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-value" id="transactions-income">0</h3>
+                                <p class="stat-label">Доходы (период)</p>
+                                <span class="stat-change positive">За выбранный период</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-arrow-down"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-value" id="transactions-expense">0</h3>
+                                <p class="stat-label">Расходы (период)</p>
+                                <span class="stat-change negative">За выбранный период</span>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card info">
+                            <div class="stat-icon">
+                                <i class="fas fa-list"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 class="stat-value" id="transactions-count">0</h3>
+                                <p class="stat-label">Количество транзакций</p>
+                                <span class="stat-change neutral">Всего</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Actions Header -->
+                <div class="actions-header">
+                    <div class="actions-title">
+                        <button class="btn btn-outline" id="add-filter-btn-main">
+                            <i class="fas fa-plus"></i>
+                            Добавить фильтр
+                        </button>
+                    </div>
+                    <div class="actions-buttons">
+                        <button class="btn btn-outline" id="reset-filters" style="display: none;">
+                            <i class="fas fa-times"></i>
+                            Сбросить фильтры
+                        </button>
                         <button class="btn btn-outline" id="import-csv">
                             <i class="fas fa-upload"></i>
                             Импорт
@@ -316,171 +381,40 @@
                     </div>
                 </div>
 
-                <!-- Advanced Filters and Analytics -->
-                <div class="transactions-analytics">
-                    <div class="analytics-cards">
-                        <div class="analytics-card">
-                            <div class="analytics-icon income">
-                                <i class="fas fa-arrow-up"></i>
-                            </div>
-                            <div class="analytics-content">
-                                <h4>Общий доход</h4>
-                                <div class="analytics-amount" id="total-income">0</div>
-                                <div class="analytics-period">За выбранный период</div>
-                            </div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-icon expense">
-                                <i class="fas fa-arrow-down"></i>
-                            </div>
-                            <div class="analytics-content">
-                                <h4>Общий расход</h4>
-                                <div class="analytics-amount" id="total-expense">0</div>
-                                <div class="analytics-period">За выбранный период</div>
-                            </div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-icon balance">
-                                <i class="fas fa-balance-scale"></i>
-                            </div>
-                            <div class="analytics-content">
-                                <h4>Баланс</h4>
-                                <div class="analytics-amount" id="total-balance">0</div>
-                                <div class="analytics-period">Доходы - Расходы</div>
-                            </div>
-                        </div>
-                        <div class="analytics-card">
-                            <div class="analytics-icon count">
-                                <i class="fas fa-list"></i>
-                            </div>
-                            <div class="analytics-content">
-                                <h4>Количество</h4>
-                                <div class="analytics-amount" id="transactions-count">0</div>
-                                <div class="analytics-period">Всего транзакций</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Advanced Filters -->
-                <div class="advanced-filters">
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label>Период:</label>
-                            <select id="date-range-filter" class="select">
-                                <option value="all">Все время</option>
-                                <option value="today">Сегодня</option>
-                                <option value="week">Неделя</option>
-                                <option value="month" selected>Месяц</option>
-                                <option value="quarter">Квартал</option>
-                                <option value="year">Год</option>
-                                <option value="custom">Произвольный</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Категория:</label>
-                            <select id="category-filter" class="select">
-                                <option value="">Все категории</option>
-                                <option value="food">Продукты</option>
-                                <option value="transport">Транспорт</option>
-                                <option value="entertainment">Развлечения</option>
-                                <option value="shopping">Покупки</option>
-                                <option value="health">Здоровье</option>
-                                <option value="education">Образование</option>
-                                <option value="income">Доходы</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Сумма:</label>
-                            <select id="amount-filter" class="select">
-                                <option value="">Любая сумма</option>
-                                <option value="0-1000">До 1,000</option>
-                                <option value="1000-5000">1,000 - 5,000</option>
-                                <option value="5000-10000">5,000 - 10,000</option>
-                                <option value="10000+">Более 10,000</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label>Сортировка:</label>
-                            <select id="sort-filter" class="select">
-                                <option value="date-desc">Дата (новые)</option>
-                                <option value="date-asc">Дата (старые)</option>
-                                <option value="amount-desc">Сумма (большие)</option>
-                                <option value="amount-asc">Сумма (малые)</option>
-                                <option value="category">По категории</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="filter-row">
-                        <div class="filter-group">
-                            <label>Дата от:</label>
-                            <input type="date" id="date-from" class="input">
-                        </div>
-                        <div class="filter-group">
-                            <label>Дата до:</label>
-                            <input type="date" id="date-to" class="input">
-                        </div>
-                        <div class="filter-group">
-                            <label>Поиск:</label>
-                            <input type="text" id="search-transactions" placeholder="Поиск по описанию..." class="input">
-                        </div>
-                        <div class="filter-actions">
-                            <button class="btn btn-outline" id="apply-filters">
-                                <i class="fas fa-filter"></i>
-                                Применить
-                            </button>
-                            <button class="btn btn-text" id="clear-filters">
-                                <i class="fas fa-times"></i>
-                                Очистить
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Quick Filters -->
-                <div class="quick-filters">
-                    <div class="filter-chips">
-                        <button class="chip active" data-filter="all">Все</button>
-                        <button class="chip" data-filter="income">Доходы</button>
-                        <button class="chip" data-filter="expense">Расходы</button>
-                        <button class="chip" data-filter="food">Продукты</button>
-                        <button class="chip" data-filter="transport">Транспорт</button>
-                        <button class="chip" data-filter="entertainment">Развлечения</button>
-                        <button class="chip" data-filter="shopping">Покупки</button>
-                        <button class="chip" data-filter="health">Здоровье</button>
-                    </div>
-                </div>
-
-                <!-- Transactions Management -->
-                <div class="transactions-management">
-                    <div class="management-actions">
-                        <button class="btn btn-outline" id="bulk-edit">
-                            <i class="fas fa-edit"></i>
-                            Массовое редактирование
-                        </button>
-                        <button class="btn btn-outline" id="bulk-delete">
-                            <i class="fas fa-trash"></i>
-                            Массовое удаление
-                        </button>
-                        <button class="btn btn-outline" id="duplicate-transaction">
-                            <i class="fas fa-copy"></i>
-                            Дублировать
-                        </button>
-                        <button class="btn btn-outline" id="export-selected">
-                            <i class="fas fa-download"></i>
-                            Экспорт выбранных
-                        </button>
-                    </div>
-                    <div class="selection-info" id="selection-info" style="display: none;">
-                        <span id="selected-count">0</span> транзакций выбрано
-                        <button class="btn btn-text" id="select-all">Выбрать все</button>
-                        <button class="btn btn-text" id="deselect-all">Снять выбор</button>
-                    </div>
-                </div>
-
                 <!-- Transactions List -->
                 <div class="transactions-list" id="transactions-list">
                     <!-- Transactions will be loaded here -->
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <div class="pagination-controls">
+                        <div class="items-per-page">
+                            <label for="items-per-page">Показать по:</label>
+                            <select id="items-per-page" class="pagination-select">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="15">15</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                        
+                        <div class="pagination-info">
+                            <span id="pagination-info">Показано 1-5 из 0</span>
+                        </div>
+                        
+                        <div class="pagination-nav">
+                            <button class="btn btn-outline btn-sm" id="prev-page" disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="page-numbers" id="page-numbers">
+                                <button class="page-btn active" data-page="1">1</button>
+                            </div>
+                            <button class="btn btn-outline btn-sm" id="next-page" disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Transaction Actions Modal -->

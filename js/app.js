@@ -7,6 +7,13 @@ class BugalterAIApp {
         this.exchangeRates = {}; // Store exchange rates
         this.rateChanges = {}; // Store rate changes
         this.baseCurrency = 'UZS'; // Base currency for conversion
+        
+        // Pagination variables
+        this.currentPage = 1;
+        this.itemsPerPage = 5;
+        this.filteredTransactions = [];
+        this.activeFilters = [];
+        
         this.init();
     }
 
@@ -25,6 +32,17 @@ class BugalterAIApp {
         
         this.setupCharts();
         this.setupQuickAdd();
+        
+        // Инициализируем пагинацию
+        this.initializePagination();
+        
+        // Принудительно обновляем аналитические карточки через 1 секунду
+        setTimeout(() => {
+            if (this.transactionManager) {
+                console.log('Принудительное обновление аналитических карточек при инициализации...');
+                this.transactionManager.updateAnalyticsCards();
+            }
+        }, 1000);
     }
 
     bindEvents() {
@@ -92,6 +110,19 @@ class BugalterAIApp {
             }
         });
 
+        // Add filter buttons
+        document.getElementById('add-filter-btn')?.addEventListener('click', () => {
+            this.showAddFilterModal();
+        });
+
+        document.getElementById('add-filter-btn-main')?.addEventListener('click', () => {
+            this.showAddFilterModal();
+        });
+        
+        document.getElementById('reset-filters')?.addEventListener('click', () => {
+            this.resetFilters();
+        });
+
         // Currency rates refresh
         document.getElementById('refresh-rates')?.addEventListener('click', () => {
             this.refreshExchangeRates();
@@ -102,6 +133,9 @@ class BugalterAIApp {
 
         // Advanced transaction filters
         this.bindTransactionFilters();
+        
+        // Pagination events
+        this.bindPaginationEvents();
         
         // Создать глобальные функции для отладки
         window.resetAllDataGlobal = () => {
@@ -267,6 +301,14 @@ class BugalterAIApp {
         // Load section-specific data
         console.log(`Загружаем данные для раздела: ${sectionId}`);
         this.loadSectionData(sectionId);
+        
+        // Если переключаемся на транзакции, обновляем аналитические карточки
+        if (sectionId === 'transactions' && this.transactionManager) {
+            setTimeout(() => {
+                console.log('Обновление аналитических карточек при переключении на транзакции...');
+                this.transactionManager.updateAnalyticsCards();
+            }, 500);
+        }
     }
 
     loadSectionData(sectionId) {
@@ -284,25 +326,19 @@ class BugalterAIApp {
                     TransactionManager.extendApp(this);
                 }
                 
-                // Убедимся, что транзакции отображаются
-                if (this.transactionManager) {
-                    console.log('TransactionManager найден, отображаем транзакции...');
-                    setTimeout(() => {
-                        this.transactionManager.renderTransactionsTable();
-                    }, 200);
-                } else {
-                    console.error('TransactionManager не найден!');
-                    // Попробуем инициализировать еще раз
-                    if (typeof TransactionManager !== 'undefined') {
-                        console.log('Повторная попытка инициализации TransactionManager...');
-                        TransactionManager.extendApp(this);
-                        setTimeout(() => {
-                            if (this.transactionManager) {
-                                this.transactionManager.renderTransactionsTable();
-                            }
-                        }, 300);
+                // Убедимся, что транзакции отображаются с пагинацией
+                setTimeout(() => {
+                    // Загружаем все транзакции для пагинации
+                    const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+                    this.filteredTransactions = transactions;
+                    this.currentPage = 1;
+                    this.displayTransactions();
+                    
+                    // Обновляем аналитические карточки
+                    if (this.transactionManager) {
+                        this.transactionManager.updateAnalyticsCards();
                     }
-                }
+                }, 200);
                 break;
             case 'budget':
                 // Budget data is handled by BudgetManager
@@ -593,14 +629,22 @@ class BugalterAIApp {
         console.log('Loading transactions...');
         
         // Проверяем localStorage
-        const transactions = localStorage.getItem('transactions');
+        const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
         console.log('localStorage transactions:', transactions);
         
+        // Инициализируем filteredTransactions для пагинации
+        this.filteredTransactions = transactions;
+        this.currentPage = 1;
+        
         // Принудительно отображаем транзакции если мы на странице транзакций
-        if (this.currentSection === 'transactions' && this.transactionManager) {
+        if (this.currentSection === 'transactions') {
             console.log('Принудительное отображение транзакций...');
             setTimeout(() => {
-                this.transactionManager.renderTransactionsTable();
+                this.displayTransactions();
+                // Обновляем аналитические карточки
+                if (this.transactionManager) {
+                    this.transactionManager.updateAnalyticsCards();
+                }
             }, 200);
         }
     }
@@ -1633,6 +1677,592 @@ class BugalterAIApp {
         }
         this.closeTransactionModal();
     }
+
+    showAddFilterModal() {
+        const filterTypes = [
+            { id: 'period', label: 'Период', type: 'select', options: [
+                { value: 'all', label: 'Все время' },
+                { value: 'today', label: 'Сегодня' },
+                { value: 'week', label: 'Неделя' },
+                { value: 'month', label: 'Месяц' },
+                { value: 'quarter', label: 'Квартал' },
+                { value: 'year', label: 'Год' },
+                { value: 'custom', label: 'Произвольный' }
+            ]},
+            { id: 'category', label: 'Категория', type: 'select', options: [
+                { value: '', label: 'Все категории' },
+                { value: 'food', label: 'Продукты' },
+                { value: 'transport', label: 'Транспорт' },
+                { value: 'entertainment', label: 'Развлечения' },
+                { value: 'shopping', label: 'Покупки' },
+                { value: 'health', label: 'Здоровье' },
+                { value: 'education', label: 'Образование' },
+                { value: 'income', label: 'Доходы' }
+            ]},
+            { id: 'type', label: 'Тип', type: 'select', options: [
+                { value: '', label: 'Все типы' },
+                { value: 'income', label: 'Доходы' },
+                { value: 'expense', label: 'Расходы' }
+            ]},
+            { id: 'sort', label: 'Сортировка', type: 'select', options: [
+                { value: 'date-desc', label: 'Дата (новые)' },
+                { value: 'date-asc', label: 'Дата (старые)' },
+                { value: 'amount-desc', label: 'Сумма (большие)' },
+                { value: 'amount-asc', label: 'Сумма (малые)' },
+                { value: 'category', label: 'По категории' }
+            ]},
+            { id: 'date-from', label: 'Дата от', type: 'date' },
+            { id: 'date-to', label: 'Дата до', type: 'date' },
+            { id: 'search', label: 'Поиск', type: 'text', placeholder: 'Поиск по описанию...' }
+        ];
+
+        // Создаем модальное окно
+        const modal = document.createElement('div');
+        modal.className = 'modal active filter-modal';
+        modal.innerHTML = `
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Добавить фильтр</h3>
+                    <button class="modal-close" onclick="this.closest('.modal').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Выберите тип фильтра для добавления:</p>
+                    <div class="form-row">
+                        ${filterTypes.slice(0, 2).map(filter => `
+                            <div class="form-group" data-filter-id="${filter.id}" data-filter-label="${filter.label}" data-filter-type="${filter.type}">
+                                <label>${filter.label.toUpperCase()}</label>
+                                ${filter.type === 'select' ? `
+                                    <select class="select">
+                                        ${filter.options.map(option => `
+                                            <option value="${option.value}">${option.label}</option>
+                                        `).join('')}
+                                    </select>
+                                ` : filter.type === 'date' ? `
+                                    <input type="date" class="input">
+                                ` : `
+                                    <input type="text" class="input" placeholder="${filter.placeholder || ''}">
+                                `}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="form-row">
+                        ${filterTypes.slice(2, 4).map(filter => `
+                            <div class="form-group" data-filter-id="${filter.id}" data-filter-label="${filter.label}" data-filter-type="${filter.type}">
+                                <label>${filter.label.toUpperCase()}</label>
+                                ${filter.type === 'select' ? `
+                                    <select class="select">
+                                        ${filter.options.map(option => `
+                                            <option value="${option.value}">${option.label}</option>
+                                        `).join('')}
+                                    </select>
+                                ` : filter.type === 'date' ? `
+                                    <input type="date" class="input">
+                                ` : `
+                                    <input type="text" class="input" placeholder="${filter.placeholder || ''}">
+                                `}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="form-row">
+                        ${filterTypes.slice(4, 6).map(filter => `
+                            <div class="form-group" data-filter-id="${filter.id}" data-filter-label="${filter.label}" data-filter-type="${filter.type}">
+                                <label>${filter.label.toUpperCase()}</label>
+                                ${filter.type === 'select' ? `
+                                    <select class="select">
+                                        ${filter.options.map(option => `
+                                            <option value="${option.value}">${option.label}</option>
+                                        `).join('')}
+                                    </select>
+                                ` : filter.type === 'date' ? `
+                                    <input type="date" class="input">
+                                ` : `
+                                    <input type="text" class="input" placeholder="${filter.placeholder || ''}">
+                                `}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="form-group">
+                        <label>${filterTypes[6].label.toUpperCase()}</label>
+                        <input type="text" class="input" placeholder="${filterTypes[6].placeholder || ''}" data-filter-id="${filterTypes[6].id}" data-filter-label="${filterTypes[6].label}" data-filter-type="${filterTypes[6].type}">
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">
+                            Отмена
+                        </button>
+                        <button class="btn btn-primary" onclick="window.bugalterApp.addSelectedFilter()">
+                            Добавить фильтр
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+
+    }
+
+    addSelectedFilter() {
+        const modal = document.querySelector('.modal.active');
+        
+        // Получаем все заполненные фильтры
+        const filterGroups = modal.querySelectorAll('.form-group');
+        const activeFilters = [];
+        
+        filterGroups.forEach(group => {
+            const filterId = group.dataset.filterId;
+            const filterLabel = group.dataset.filterLabel;
+            const filterType = group.dataset.filterType;
+            
+            let filterValue = '';
+            const input = group.querySelector('input');
+            const select = group.querySelector('select');
+            
+            if (input) {
+                filterValue = input.value.trim();
+            } else if (select) {
+                filterValue = select.value;
+            }
+            
+            // Добавляем только заполненные фильтры
+            if (filterValue && filterValue !== '') {
+                activeFilters.push({
+                    id: filterId,
+                    label: filterLabel,
+                    type: filterType,
+                    value: filterValue
+                });
+            }
+        });
+        
+        if (activeFilters.length === 0) {
+            this.showNotification('Выберите хотя бы один фильтр', 'warning');
+            return;
+        }
+        
+        // Применяем фильтры
+        this.applyActiveFilters(activeFilters);
+        
+        // Закрываем модальное окно
+        modal.remove();
+        
+        
+    }
+
+    addFilterToContainer(filterId, filterValue, filterLabel, filterType) {
+        const container = document.getElementById('filters-container');
+        
+        // Получаем отображаемое значение
+        let displayValue = filterValue;
+        if (filterType === 'select') {
+            const option = document.querySelector(`option[value="${filterValue}"]`);
+            if (option) {
+                displayValue = option.textContent;
+            }
+        }
+        
+        const filterElement = document.createElement('div');
+        filterElement.className = 'filter-item';
+        filterElement.dataset.filterId = filterId;
+        filterElement.dataset.filterValue = filterValue;
+        filterElement.innerHTML = `
+            <div class="filter-group">
+                <label>${filterLabel}:</label>
+                <div class="filter-control">
+                    <input type="text" value="${displayValue}" class="input" readonly>
+                    <button class="btn btn-sm btn-text" onclick="this.closest('.filter-item').remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+
+        container.appendChild(filterElement);
+        
+        // Применяем фильтр к транзакциям
+        this.applyFilters();
+    }
+
+    applyActiveFilters(activeFilters) {
+        console.log('Применение активных фильтров:', activeFilters);
+        
+        // Получаем все транзакции из localStorage
+        const transactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        let filteredTransactions = [...transactions];
+        
+        // Применяем каждый фильтр
+        activeFilters.forEach(filter => {
+            switch (filter.id) {
+                case 'period':
+                    filteredTransactions = this.filterByPeriod(filteredTransactions, filter.value);
+                    break;
+                case 'category':
+                    filteredTransactions = this.filterByCategory(filteredTransactions, filter.value);
+                    break;
+                case 'type':
+                    filteredTransactions = this.filterByType(filteredTransactions, filter.value);
+                    break;
+                case 'sort':
+                    filteredTransactions = this.sortTransactions(filteredTransactions, filter.value);
+                    break;
+                case 'date-from':
+                    filteredTransactions = this.filterByDateFrom(filteredTransactions, filter.value);
+                    break;
+                case 'date-to':
+                    filteredTransactions = this.filterByDateTo(filteredTransactions, filter.value);
+                    break;
+                case 'search':
+                    filteredTransactions = this.filterBySearch(filteredTransactions, filter.value);
+                    break;
+            }
+        });
+        
+        // Обновляем отображение транзакций
+        this.displayFilteredTransactions(filteredTransactions);
+        
+        // Сохраняем активные фильтры
+        this.activeFilters = activeFilters;
+    }
+    
+    filterByPeriod(transactions, period) {
+        if (period === 'all') return transactions;
+        
+        const now = new Date();
+        const filtered = transactions.filter(transaction => {
+            const transactionDate = new Date(transaction.date);
+            
+            switch (period) {
+                case 'today':
+                    return this.isSameDay(transactionDate, now);
+                case 'week':
+                    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    return transactionDate >= weekAgo;
+                case 'month':
+                    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    return transactionDate >= monthAgo;
+                case 'quarter':
+                    const quarterAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+                    return transactionDate >= quarterAgo;
+                case 'year':
+                    const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
+                    return transactionDate >= yearAgo;
+                default:
+                    return true;
+            }
+        });
+        
+        return filtered;
+    }
+    
+    filterByCategory(transactions, category) {
+        if (!category || category === '') return transactions;
+        return transactions.filter(transaction => transaction.category === category);
+    }
+    
+    filterByType(transactions, type) {
+        if (!type || type === '') return transactions;
+        return transactions.filter(transaction => transaction.type === type);
+    }
+    
+    sortTransactions(transactions, sortType) {
+        const sorted = [...transactions];
+        
+        switch (sortType) {
+            case 'date-desc':
+                return sorted.sort((a, b) => new Date(b.date) - new Date(a.date));
+            case 'date-asc':
+                return sorted.sort((a, b) => new Date(a.date) - new Date(b.date));
+            case 'amount-desc':
+                return sorted.sort((a, b) => b.amount - a.amount);
+            case 'amount-asc':
+                return sorted.sort((a, b) => a.amount - b.amount);
+            case 'category':
+                return sorted.sort((a, b) => a.category.localeCompare(b.category));
+            default:
+                return sorted;
+        }
+    }
+    
+    filterByDateFrom(transactions, dateFrom) {
+        if (!dateFrom) return transactions;
+        const fromDate = new Date(dateFrom);
+        return transactions.filter(transaction => new Date(transaction.date) >= fromDate);
+    }
+    
+    filterByDateTo(transactions, dateTo) {
+        if (!dateTo) return transactions;
+        const toDate = new Date(dateTo);
+        return transactions.filter(transaction => new Date(transaction.date) <= toDate);
+    }
+    
+    filterBySearch(transactions, searchTerm) {
+        if (!searchTerm || searchTerm.trim() === '') return transactions;
+        const term = searchTerm.toLowerCase();
+        return transactions.filter(transaction => 
+            transaction.description.toLowerCase().includes(term) ||
+            transaction.category.toLowerCase().includes(term)
+        );
+    }
+    
+    isSameDay(date1, date2) {
+        return date1.getFullYear() === date2.getFullYear() &&
+               date1.getMonth() === date2.getMonth() &&
+               date1.getDate() === date2.getDate();
+    }
+    
+    displayFilteredTransactions(filteredTransactions) {
+        // Обновляем данные в TransactionManager
+        if (this.transactionManager) {
+            this.transactionManager.filteredTransactions = filteredTransactions;
+        }
+        
+        // Отображаем транзакции
+        this.displayTransactions();
+        
+        // Показываем кнопку сброса фильтров
+        const resetButton = document.getElementById('reset-filters');
+        if (resetButton) {
+            resetButton.style.display = 'inline-flex';
+        }
+    }
+    
+    resetFilters() {
+        // Сбрасываем фильтры в TransactionManager
+        if (this.transactionManager) {
+            this.transactionManager.filteredTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        }
+        
+        // Отображаем транзакции
+        this.displayTransactions();
+        
+        // Скрываем кнопку сброса фильтров
+        const resetButton = document.getElementById('reset-filters');
+        if (resetButton) {
+            resetButton.style.display = 'none';
+        }
+        
+        this.showNotification('Фильтры сброшены', 'success');
+    }
+    
+    applyFilters() {
+        console.log('Применение фильтров...');
+        // TODO: Реализовать логику фильтрации транзакций
+    }
+
+    initializePagination() {
+        // Инициализируем пагинацию с данными из TransactionManager
+        if (this.transactionManager) {
+            this.transactionManager.filteredTransactions = JSON.parse(localStorage.getItem('transactions') || '[]');
+        }
+        
+        // Если мы на странице транзакций, отображаем их
+        if (this.currentSection === 'transactions') {
+            setTimeout(() => {
+                this.displayTransactions();
+            }, 100);
+        }
+    }
+
+    // Pagination methods
+    bindPaginationEvents() {
+        const itemsPerPageSelect = document.getElementById('items-per-page');
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        const pageNumbers = document.getElementById('page-numbers');
+
+        if (itemsPerPageSelect) {
+            itemsPerPageSelect.addEventListener('change', (e) => {
+                this.itemsPerPage = parseInt(e.target.value);
+                this.currentPage = 1;
+                this.updatePagination();
+                this.displayTransactions();
+            });
+        }
+
+        if (prevPageBtn) {
+            prevPageBtn.addEventListener('click', () => {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.updatePagination();
+                    this.displayTransactions();
+                }
+            });
+        }
+
+        if (nextPageBtn) {
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = Math.ceil(this.filteredTransactions.length / this.itemsPerPage);
+                if (this.currentPage < totalPages) {
+                    this.currentPage++;
+                    this.updatePagination();
+                    this.displayTransactions();
+                }
+            });
+        }
+
+        // Delegate event for page buttons
+        if (pageNumbers) {
+            pageNumbers.addEventListener('click', (e) => {
+                if (e.target.classList.contains('page-btn')) {
+                    const page = parseInt(e.target.dataset.page);
+                    this.currentPage = page;
+                    this.updatePagination();
+                    this.displayTransactions();
+                }
+            });
+        }
+    }
+
+    updatePagination() {
+        const totalItems = this.filteredTransactions.length;
+        const totalPages = Math.ceil(totalItems / this.itemsPerPage);
+        const startItem = (this.currentPage - 1) * this.itemsPerPage + 1;
+        const endItem = Math.min(this.currentPage * this.itemsPerPage, totalItems);
+
+        // Update info text
+        const paginationInfo = document.getElementById('pagination-info');
+        if (paginationInfo) {
+            paginationInfo.textContent = `Показано ${startItem}-${endItem} из ${totalItems}`;
+        }
+
+        // Update navigation buttons
+        const prevPageBtn = document.getElementById('prev-page');
+        const nextPageBtn = document.getElementById('next-page');
+        
+        if (prevPageBtn) {
+            prevPageBtn.disabled = this.currentPage <= 1;
+        }
+        
+        if (nextPageBtn) {
+            nextPageBtn.disabled = this.currentPage >= totalPages;
+        }
+
+        // Update page numbers
+        this.updatePageNumbers(totalPages);
+    }
+
+    updatePageNumbers(totalPages) {
+        const pageNumbers = document.getElementById('page-numbers');
+        if (!pageNumbers) return;
+
+        pageNumbers.innerHTML = '';
+
+        // Show max 5 pages around current page
+        let startPage = Math.max(1, this.currentPage - 2);
+        let endPage = Math.min(totalPages, this.currentPage + 2);
+
+        // Adjust if we're near the beginning
+        if (this.currentPage <= 3) {
+            endPage = Math.min(totalPages, 5);
+        }
+
+        // Adjust if we're near the end
+        if (this.currentPage >= totalPages - 2) {
+            startPage = Math.max(1, totalPages - 4);
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.className = `page-btn ${i === this.currentPage ? 'active' : ''}`;
+            pageBtn.dataset.page = i;
+            pageBtn.textContent = i;
+            pageNumbers.appendChild(pageBtn);
+        }
+    }
+
+    displayTransactions() {
+        const transactionsList = document.getElementById('transactions-list');
+        if (!transactionsList) return;
+
+        // Используем данные из TransactionManager если он доступен
+        const transactions = this.transactionManager ? this.transactionManager.filteredTransactions : this.filteredTransactions;
+        
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        const pageTransactions = transactions.slice(startIndex, endIndex);
+
+        if (pageTransactions.length === 0) {
+            transactionsList.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>Нет транзакций</h3>
+                    <p>Добавьте первую транзакцию, чтобы начать отслеживать ваши финансы</p>
+                </div>
+            `;
+        } else {
+            transactionsList.innerHTML = pageTransactions.map(transaction => {
+                const amount = Math.abs(transaction.amount);
+                const amountDisplay = transaction.type === 'income' ? `+${this.formatCurrency(amount)}` : `-${this.formatCurrency(amount)}`;
+                const categoryDisplay = transaction.category || 'Без категории';
+                const sourceDisplay = transaction.source || 'Не указан';
+                
+                return `
+                <div class="transaction-item ${transaction.type}" data-transaction-id="${transaction.id}">
+                    <div class="transaction-icon">
+                        <i class="fas fa-${transaction.type === 'income' ? 'arrow-up' : 'arrow-down'}"></i>
+                    </div>
+                    
+                    <div class="transaction-details">
+                        <div class="transaction-header">
+                            <div class="transaction-id">
+                                <span class="transaction-number">Транзакция: ${transaction.id}</span>
+                                <span class="transaction-date">Создан: ${new Date(transaction.date).toLocaleDateString('ru-RU')}, ${new Date(transaction.date).toLocaleTimeString('ru-RU', {hour: '2-digit', minute: '2-digit'})}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="transaction-info-grid">
+                            <div class="info-column">
+                                <div class="info-label">Тип</div>
+                                <div class="info-value">
+                                    <span class="transaction-type">${transaction.type === 'income' ? 'Доход' : 'Расход'}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-column">
+                                <div class="info-label">Категория</div>
+                                <div class="info-value">
+                                    <span class="category-name">${categoryDisplay}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="info-column">
+                                <div class="info-label">Источник</div>
+                                <div class="info-value">
+                                    <span class="source-name">${sourceDisplay}</span>
+                                    <i class="fas fa-info-circle info-icon"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="info-column">
+                                <div class="info-label">Статус</div>
+                                <div class="info-value">
+                                    <span class="status-badge ${transaction.type}">${transaction.type === 'income' ? 'Получен' : 'Потрачен'}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="transaction-amount-section">
+                        <div class="amount-info">
+                            <div class="amount-value ${transaction.type}">${amountDisplay}</div>
+                            <div class="amount-label">Стоимость транзакции</div>
+                        </div>
+                    </div>
+                    
+                    <div class="transaction-action">
+                        <div class="action-icon ${transaction.type === 'income' ? 'success' : 'warning'}">
+                            <i class="fas fa-${transaction.type === 'income' ? 'check' : 'exclamation'}"></i>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+        }
+
+        this.updatePagination();
+    }
 }
 
 // Initialize the application
@@ -1690,8 +2320,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Принудительная инициализация для страницы транзакций...');
                 if (window.bugalterApp.transactionManager) {
                     window.bugalterApp.transactionManager.renderTransactionsTable();
+                    window.bugalterApp.transactionManager.updateAnalyticsCards();
                 }
             }
         }, 3000);
+        
+        // Принудительное обновление аналитических карточек через 4 секунды
+        setTimeout(() => {
+            console.log('Принудительное обновление аналитических карточек...');
+            if (window.bugalterApp.transactionManager) {
+                window.bugalterApp.transactionManager.updateAnalyticsCards();
+            }
+        }, 4000);
     }, 500);
 }); 

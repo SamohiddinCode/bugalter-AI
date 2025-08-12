@@ -4,7 +4,7 @@
 .transaction-item {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-around;
     padding: var(--spacing-4) 0;
     border-bottom: 1px solid var(--gray-200);
 }
@@ -347,5 +347,376 @@
 
     .category-actions {
         align-self: flex-end;
+    }
+}
+
+/* Filter Styles */
+.filter-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
+}
+
+.filter-option {
+    padding: var(--spacing-4);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+[data-theme="dark"] .filter-option {
+    border-color: var(--gray-700);
+}
+
+.filter-option:hover {
+    border-color: var(--primary-color);
+    background-color: var(--gray-50);
+}
+
+[data-theme="dark"] .filter-option:hover {
+    background-color: var(--gray-800);
+}
+
+.filter-option.selected {
+    border-color: var(--primary-color);
+    background-color: var(--primary-color);
+    color: var(--white);
+}
+
+.filter-option label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: var(--spacing-2);
+}
+
+.filter-option select,
+.filter-option input {
+    width: 100%;
+    margin-top: var(--spacing-2);
+}
+
+.filter-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+    background-color: var(--gray-50);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-2);
+}
+
+[data-theme="dark"] .filter-item {
+    background-color: var(--gray-800);
+}
+
+.filter-control {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.filter-control input {
+    flex: 1;
+    min-width: 150px;
+}
+
+.actions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding: var(--spacing-lg);
+    background: var(--background-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+}
+
+.actions-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+}
+
+.actions-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+}
+
+/* Стили для кнопок в actions-header в стиле "Быстрое добавление" */
+.actions-header .actions-buttons .btn {
+    padding: 12px 24px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-width: 100px;
+    border: none;
+    cursor: pointer;
+}
+
+.actions-header .actions-buttons .btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.actions-header .actions-buttons .btn-primary:hover {
+    background: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.actions-header .actions-buttons .btn-outline {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.actions-header .actions-buttons .btn-outline:hover {
+    background: #e5e7eb;
+    transform: translateY(-1px);
+}
+
+/* Dark theme support for actions buttons */
+[data-theme="dark"] .actions-header .actions-buttons .btn-outline {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .actions-header .actions-buttons .btn-outline:hover {
+    background: #4b5563;
+}
+
+/* Стили модального окна фильтров в стиле "Быстрое добавление" */
+.modal.filter-modal .modal-content {
+    max-width: 500px;
+    width: 95%;
+    animation: quickAddSlideIn 0.3s ease-out;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+.modal.filter-modal .modal-header {
+    background: #f8fafc;
+    color: #1e293b;
+    padding: 24px 32px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal.filter-modal .modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: #1e293b;
+}
+
+.modal.filter-modal .modal-body {
+    padding: 32px;
+    background: white;
+}
+
+.modal.filter-modal .modal-body p {
+    margin-bottom: 24px;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.modal.filter-modal .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.modal.filter-modal .form-group {
+    margin-bottom: 20px;
+}
+
+.modal.filter-modal .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.modal.filter-modal .input,
+.modal.filter-modal .select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    background: white;
+    color: #1f2937;
+}
+
+.modal.filter-modal .input:focus,
+.modal.filter-modal .select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+
+
+.modal.filter-modal .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.modal.filter-modal .form-actions .btn {
+    padding: 12px 24px;
+    font-weight: 500;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    min-width: 100px;
+    border: none;
+    cursor: pointer;
+}
+
+.modal.filter-modal .form-actions .btn-primary {
+    background: #3b82f6;
+    color: white;
+}
+
+.modal.filter-modal .form-actions .btn-primary:hover {
+    background: #2563eb;
+}
+
+.modal.filter-modal .form-actions .btn-secondary {
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.modal.filter-modal .form-actions .btn-secondary:hover {
+    background: #e5e7eb;
+}
+
+/* Dark theme support for filter modal */
+[data-theme="dark"] .modal.filter-modal .modal-header {
+    background: #1f2937;
+    color: #f9fafb;
+    border-bottom-color: #374151;
+}
+
+[data-theme="dark"] .modal.filter-modal .modal-header h3 {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .modal.filter-modal .modal-body {
+    background: #111827;
+}
+
+[data-theme="dark"] .modal.filter-modal .modal-body p {
+    color: #9ca3af;
+}
+
+[data-theme="dark"] .modal.filter-modal .form-group.selected {
+    background: #1e3a8a;
+    border-color: #3b82f6;
+}
+
+[data-theme="dark"] .modal.filter-modal .form-group label {
+    color: #f3f4f6;
+}
+
+[data-theme="dark"] .modal.filter-modal .input,
+[data-theme="dark"] .modal.filter-modal .select {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .modal.filter-modal .input:focus,
+[data-theme="dark"] .modal.filter-modal .select:focus {
+    border-color: #3b82f6;
+}
+
+[data-theme="dark"] .modal.filter-modal .form-actions {
+    border-top-color: #374151;
+}
+
+[data-theme="dark"] .modal.filter-modal .form-actions .btn-secondary {
+    background: #374151;
+    color: #f9fafb;
+    border-color: #4b5563;
+}
+
+[data-theme="dark"] .modal.filter-modal .form-actions .btn-secondary:hover {
+    background: #4b5563;
+}
+
+/* Responsive design for filter modal */
+@media (max-width: 768px) {
+    .filter-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-header {
+        flex-direction: column;
+        gap: var(--spacing-md);
+        align-items: stretch;
+        padding: var(--spacing-md);
+    }
+    
+    .actions-buttons {
+        justify-content: center;
+        gap: var(--spacing-sm);
+    }
+    
+    .actions-title {
+        justify-content: center;
+    }
+    
+    .modal.filter-modal .form-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .modal.filter-modal .modal-content {
+        width: 95%;
+        margin: 20px;
+    }
+    
+    .modal.filter-modal .modal-body {
+        padding: 24px;
+    }
+    
+    .modal.filter-modal .form-actions {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .modal.filter-modal .form-actions .btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .actions-header {
+        padding: var(--spacing-sm);
+        margin-bottom: 20px;
+    }
+    
+    .actions-buttons {
+        flex-direction: column;
+        gap: var(--spacing-sm);
+    }
+    
+    .actions-buttons .btn {
+        width: 100%;
     }
 } 
